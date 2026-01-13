@@ -76,11 +76,21 @@ export async function addResource(resourceData) {
 // Update a resource
 export async function updateResource(resourceId, updateData) {
   const resourcesCollection = await getResourcesCollection();
+  
+  // First check if resource exists
+  const exists = await resourcesCollection.findOne({ _id: new ObjectId(resourceId) });
+  if (!exists) {
+    return false;
+  }
+  
+  // Update the resource
   const result = await resourcesCollection.updateOne(
     { _id: new ObjectId(resourceId) },
     { $set: updateData }
   );
-  return result.modifiedCount > 0;
+  
+  // Return true if resource exists (even if no fields changed)
+  return true;
 }
 
 // Delete a resource
