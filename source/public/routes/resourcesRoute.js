@@ -36,6 +36,10 @@ const upload = multer({
       'application/vnd.ms-powerpoint',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-rar',
       'image/png',
       'image/jpeg',
     ];
@@ -43,7 +47,7 @@ const upload = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, PPT, PPTX, ZIP, PNG, and JPG files are allowed.'));
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, PPT, PPTX, ZIP, RAR, PNG, and JPG files are allowed.'));
     }
   }
 });
