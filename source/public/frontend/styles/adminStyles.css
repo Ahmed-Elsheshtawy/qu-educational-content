@@ -519,6 +519,20 @@ body {
     font-weight: 500;
 }
 
+.modal-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background-color: #f0f0f0;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-footer-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
 /* Error Messages */
 .error-message,
 .form-error {

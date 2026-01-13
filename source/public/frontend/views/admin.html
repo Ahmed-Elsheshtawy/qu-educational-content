@@ -235,6 +235,75 @@
         </div>
     </div>
 
+    <!-- Pending Resource Edit Modal -->
+    <div id="pending-edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Pending Submission</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="pending-edit-form">
+                <input type="hidden" id="pending-resource-id">
+                
+                <div class="form-group">
+                    <label for="pending-course-code">Course Code *</label>
+                    <select id="pending-course-code" required>
+                        <option value="">Select Course</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-title">Title *</label>
+                    <input type="text" id="pending-title" placeholder="e.g., Midterm Exam 2023" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-type">Type *</label>
+                    <select id="pending-type" required>
+                        <option value="">Select Type</option>
+                        <option value="exam">Exam</option>
+                        <option value="lecture-notes">Lecture Notes</option>
+                        <option value="assignment">Assignment</option>
+                        <option value="solution">Solution</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-description">Description</label>
+                    <textarea id="pending-description" rows="3" placeholder="Brief description of the resource"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-year">Year *</label>
+                    <input type="number" id="pending-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-file-url">File URL</label>
+                    <input type="text" id="pending-file-url" placeholder="File URL" readonly>
+                    <small class="form-hint">File URL cannot be changed</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="pending-file-name">File Name</label>
+                    <input type="text" id="pending-file-name" placeholder="File name" readonly>
+                    <small class="form-hint">File name cannot be changed</small>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+                <p class="form-error"></p>
+            </form>
+            <div class="modal-footer-actions">
+                <button type="button" id="pending-approve-btn" class="btn btn-success">Approve Submission</button>
+                <button type="button" id="pending-reject-btn" class="btn btn-danger">Reject Submission</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer style="background-color: #8B1538; color: white; text-align: center; padding: 1rem; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.9rem;">&copy; 2026 Masdar. All rights reserved.</p>

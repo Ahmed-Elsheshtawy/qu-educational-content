@@ -35,6 +35,7 @@ const pendingTab = document.getElementById('pending-tab');
 const courseModal = document.getElementById('course-modal');
 const resourceModal = document.getElementById('resource-modal');
 const deleteModal = document.getElementById('delete-modal');
+const pendingEditModal = document.getElementById('pending-edit-modal');
 
 // Close buttons
 const closeButtons = document.querySelectorAll('.close-btn');
@@ -66,6 +67,11 @@ function setupEventListeners() {
 
   // Delete confirmation
   document.getElementById('confirm-delete-btn').addEventListener('click', handleDelete);
+
+  // Pending edit actions
+  document.getElementById('pending-edit-form').addEventListener('submit', handlePendingEditSubmit);
+  document.getElementById('pending-approve-btn').addEventListener('click', handlePendingApprove);
+  document.getElementById('pending-reject-btn').addEventListener('click', handlePendingReject);
 
   // Close modals
   closeButtons.forEach(btn => {
@@ -261,6 +267,7 @@ function renderPendingTable() {
       <td>${formatDate(resource.uploadDate)}</td>
       <td>
         <div class="table-actions">
+          <button class="btn-icon btn-edit" onclick="editPendingSubmission('${resource._id}')">Edit</button>
           <button class="btn-icon btn-success" onclick="approveSubmission('${resource._id}')">Approve</button>
           <button class="btn-icon btn-delete" onclick="rejectSubmission('${resource._id}')">Reject</button>
         </div>
@@ -305,6 +312,96 @@ window.rejectSubmission = async function(resourceId) {
     `Are you sure you want to reject "${resource.title}"? This will permanently delete it.`;
   document.getElementById('delete-modal').classList.add('active');
 };
+
+// Edit pending submission
+function editPendingSubmission(resourceId) {
+  const resource = pendingResources.find(r => r._id === resourceId);
+  if (!resource) return;
+
+  const modal = document.getElementById('pending-edit-modal');
+  const form = document.getElementById('pending-edit-form');
+  
+  form.reset();
+  form.querySelector('.form-error').textContent = '';
+  
+  // Populate form with resource data
+  document.getElementById('pending-resource-id').value = resource._id;
+  document.getElementById('pending-course-code').value = resource.courseCode;
+  document.getElementById('pending-title').value = resource.title;
+  document.getElementById('pending-type').value = resource.type;
+  document.getElementById('pending-description').value = resource.description || '';
+  document.getElementById('pending-year').value = resource.year || '';
+  document.getElementById('pending-file-url').value = resource.fileUrl || '';
+  document.getElementById('pending-file-name').value = resource.fileName || '';
+  
+  // Populate course dropdown
+  const courseSelect = document.getElementById('pending-course-code');
+  const options = allCourses.map(course => 
+    `<option value="${course.courseCode}">${course.courseCode} - ${course.courseName}</option>`
+  ).join('');
+  courseSelect.innerHTML = '<option value="">Select Course</option>' + options;
+  courseSelect.value = resource.courseCode;
+  
+  modal.classList.add('active');
+}
+
+window.editPendingSubmission = editPendingSubmission;
+
+// Handle pending edit submit
+async function handlePendingEditSubmit(e) {
+  e.preventDefault();
+  const formError = e.target.querySelector('.form-error');
+  formError.textContent = '';
+
+  const resourceId = document.getElementById('pending-resource-id').value;
+  const resourceData = {
+    courseCode: document.getElementById('pending-course-code').value,
+    title: document.getElementById('pending-title').value,
+    type: document.getElementById('pending-type').value,
+    description: document.getElementById('pending-description').value,
+    year: parseInt(document.getElementById('pending-year').value)
+  };
+
+  try {
+    await updateResource(resourceId, resourceData);
+    showSuccessMessage('Pending submission updated successfully');
+    await loadPendingResources();
+  } catch (error) {
+    formError.textContent = error.message || 'Failed to update submission. Please try again.';
+    console.error('Pending edit error:', error);
+  }
+}
+
+// Handle approve from edit modal
+async function handlePendingApprove() {
+  const resourceId = document.getElementById('pending-resource-id').value;
+  if (!resourceId) return;
+
+  try {
+    await approveResource(resourceId);
+    await syncResourceCounts();
+    closeAllModals();
+    showSuccessMessage('Resource approved successfully!');
+    await loadDashboardData();
+  } catch (error) {
+    console.error('Error approving submission:', error);
+    showErrorMessage(error.message || 'Failed to approve submission');
+  }
+}
+
+// Handle reject from edit modal
+async function handlePendingReject() {
+  const resourceId = document.getElementById('pending-resource-id').value;
+  const resource = pendingResources.find(r => r._id === resourceId);
+  if (!resource) return;
+
+  closeAllModals();
+  
+  deleteTarget = { type: 'pending', id: resourceId };
+  document.getElementById('delete-message').textContent = 
+    `Are you sure you want to reject "${resource.title}"? This will permanently delete it.`;
+  document.getElementById('delete-modal').classList.add('active');
+}
 
 // Switch tabs
 function switchTab(tabName) {
