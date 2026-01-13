@@ -65,6 +65,38 @@
     font-weight: 500;
 }
 
+.btn-add-resource {
+    background-color: var(--accent-gold);
+    color: var(--primary-maroon);
+    border: none;
+    padding: 0.875rem 1.75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    align-self: flex-start;
+}
+
+.btn-add-resource span {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.btn-add-resource:hover {
+    background-color: #d4b872;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 169, 98, 0.3);
+}
+
+.btn-add-resource:active {
+    transform: translateY(0);
+}
+
 .course-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

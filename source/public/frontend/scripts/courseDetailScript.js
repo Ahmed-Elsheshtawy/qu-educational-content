@@ -63,6 +63,20 @@ function populateCourseInfo(course) {
   if (collegeEl) collegeEl.textContent = course.college || 'N/A';
   if (departmentEl) departmentEl.textContent = course.department || 'N/A';
   if (resourceCountEl) resourceCountEl.textContent = `${course.resourceCount || 0} Resources`;
+
+  // Setup "Add Resource" button
+  const addResourceBtn = document.getElementById('add-resource-btn');
+  if (addResourceBtn) {
+    addResourceBtn.addEventListener('click', () => {
+      // Navigate to submit page with pre-filled course info
+      const params = new URLSearchParams({
+        college: course.college || '',
+        department: course.department || '',
+        courseCode: course.courseCode
+      });
+      window.location.href = `/submit?${params.toString()}`;
+    });
+  }
 }
 
 // Display resources

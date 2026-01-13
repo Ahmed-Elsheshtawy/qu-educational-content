@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFormHandler();
     setupFileInput();
     setupCascadingDropdowns();
+    checkURLParameters();
 });
 
 // Setup cascading dropdowns
@@ -94,6 +95,9 @@ async function loadCourses() {
         allCourses = Array.isArray(courses) ? courses : (courses.courses || []);
         
         populateCollegeSelect(allCourses);
+        
+        // After courses are loaded, pre-fill from URL if params exist
+        prefillFromURL();
     } catch (error) {
         console.error('Error loading courses:', error);
         showMessage('Failed to load courses. Please refresh the page.', 'error');
@@ -245,6 +249,72 @@ async function handleSubmit(e) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Resource';
     }
+}
+
+// Check URL parameters and store for later use
+function checkURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Store params in sessionStorage if they exist
+    if (urlParams.has('college')) {
+        sessionStorage.setItem('prefill_college', urlParams.get('college'));
+    }
+    if (urlParams.has('department')) {
+        sessionStorage.setItem('prefill_department', urlParams.get('department'));
+    }
+    if (urlParams.has('courseCode')) {
+        sessionStorage.setItem('prefill_courseCode', urlParams.get('courseCode'));
+    }
+}
+
+// Pre-fill form from URL parameters
+function prefillFromURL() {
+    const college = sessionStorage.getItem('prefill_college');
+    const department = sessionStorage.getItem('prefill_department');
+    const courseCode = sessionStorage.getItem('prefill_courseCode');
+    
+    if (!college || !department || !courseCode) return;
+    
+    // Clear session storage
+    sessionStorage.removeItem('prefill_college');
+    sessionStorage.removeItem('prefill_department');
+    sessionStorage.removeItem('prefill_courseCode');
+    
+    // Pre-fill college
+    collegeSelect.value = college;
+    
+    // Trigger college change to populate departments
+    const departments = [...new Set(
+        allCourses
+            .filter(course => course.college === college)
+            .map(course => course.department)
+    )].sort();
+    
+    const departmentOptions = departments
+        .map(dept => `<option value="${dept}">${dept}</option>`)
+        .join('');
+    
+    departmentSelect.innerHTML = '<option value="">Select Department</option>' + departmentOptions;
+    departmentSelect.disabled = false;
+    departmentSelect.value = department;
+    
+    // Trigger department change to populate courses
+    const filteredCourses = allCourses.filter(course => 
+        course.college === college && 
+        course.department === department
+    );
+    
+    const courseOptions = filteredCourses
+        .sort((a, b) => a.courseCode.localeCompare(b.courseCode))
+        .map(course => `<option value="${course.courseCode}">${course.courseCode} - ${course.courseName}</option>`)
+        .join('');
+    
+    courseSelect.innerHTML = '<option value="">Select Course</option>' + courseOptions;
+    courseSelect.disabled = false;
+    courseSelect.value = courseCode;
+    
+    // Scroll to form
+    submitForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Show message
