@@ -149,17 +149,12 @@ function populateFilters(courses) {
     collegeFilter.appendChild(option);
   });
 
-  // Get unique departments
-  const departments = [...new Set(courses.map(c => c.department).filter(Boolean))].sort();
-  departments.forEach(department => {
-    const option = document.createElement('option');
-    option.value = department;
-    option.textContent = department;
-    departmentFilter.appendChild(option);
-  });
+  // Initially disable department filter with message
+  departmentFilter.disabled = true;
+  departmentFilter.innerHTML = '<option value="">Select a college first</option>';
 
   // Add event listeners
-  collegeFilter.addEventListener('change', applyFilters);
+  collegeFilter.addEventListener('change', handleCollegeFilterChange);
   departmentFilter.addEventListener('change', applyFilters);
   resetButton.addEventListener('click', resetFilters);
   
@@ -173,6 +168,39 @@ function populateFilters(courses) {
       applyFilters();
     }
   });
+}
+
+// Handle college filter change (cascading)
+function handleCollegeFilterChange() {
+  const selectedCollege = collegeFilter.value;
+  
+  if (!selectedCollege) {
+    // If no college selected, disable department filter
+    departmentFilter.disabled = true;
+    departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+  } else {
+    // Enable department filter
+    departmentFilter.disabled = false;
+    departmentFilter.innerHTML = '<option value="">All Departments</option>';
+    
+    // Show only departments in selected college
+    const departments = [...new Set(
+      allCourses
+        .filter(c => c.college === selectedCollege)
+        .map(c => c.department)
+        .filter(Boolean)
+    )].sort();
+    
+    departments.forEach(department => {
+      const option = document.createElement('option');
+      option.value = department;
+      option.textContent = department;
+      departmentFilter.appendChild(option);
+    });
+  }
+  
+  // Apply filters after updating department dropdown
+  applyFilters();
 }
 
 // Apply filters
@@ -222,6 +250,11 @@ function resetFilters() {
   collegeFilter.value = '';
   departmentFilter.value = '';
   searchInput.value = '';
+  
+  // Disable department filter and reset message
+  departmentFilter.disabled = true;
+  departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+  
   displayCourses(allCourses);
 }
 
