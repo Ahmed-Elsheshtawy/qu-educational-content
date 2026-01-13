@@ -76,12 +76,15 @@ function setupEventListeners() {
     btn.addEventListener('click', () => closeAllModals());
   });
 
-  // Close modal on outside click
+  // Close modal on outside click - DISABLED
+  // Uncomment below to enable closing modals by clicking outside
+  /*
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
       closeAllModals();
     }
   });
+  */
 }
 
 // Handle logout
