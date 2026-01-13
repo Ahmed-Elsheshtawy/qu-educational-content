@@ -178,30 +178,13 @@ async function handleSubmit(e) {
         return;
     }
 
-    // Check file size limit (Vercel serverless limit is 4.5MB)
-    if (file && file.size > 4.5 * 1024 * 1024) {
-        showMessage('File size exceeds 4.5MB limit. Please use a file sharing service (Google Drive, Dropbox, etc.) and provide the link instead.', 'error');
-        return;
-    }
-
-    // Create FormData for file upload
-    const formData = new FormData();
-    formData.append('courseCode', document.getElementById('submit-course-code').value);
-    formData.append('title', document.getElementById('submit-title').value);
-    formData.append('type', document.getElementById('submit-type').value);
-    formData.append('year', document.getElementById('submit-year').value);
-    formData.append('description', document.getElementById('submit-description').value || '');
-    formData.append('tags', JSON.stringify(tags));
-    formData.append('status', 'pending');
-
-    if (file) {
-        formData.append('file', file);
-    } else {
-        formData.append('fileUrl', fileUrl);
-    }
-    
     // Validate required fields
-    if (!formData.get('courseCode') || !formData.get('title') || !formData.get('type') || !formData.get('year')) {
+    const courseCode = document.getElementById('submit-course-code').value;
+    const title = document.getElementById('submit-title').value;
+    const type = document.getElementById('submit-type').value;
+    const year = document.getElementById('submit-year').value;
+    
+    if (!courseCode || !title || !type || !year) {
         showMessage('Please fill in all required fields.', 'error');
         return;
     }
@@ -212,9 +195,38 @@ async function handleSubmit(e) {
     submitBtn.textContent = file ? 'Uploading...' : 'Submitting...';
     
     try {
+        let finalFileUrl, finalFileName, finalFileSize;
+
+        if (file) {
+            // Direct upload to R2 using presigned URL
+            finalFileUrl = await uploadFileDirectly(file, submitBtn);
+            finalFileName = file.name;
+            finalFileSize = file.size;
+        } else {
+            finalFileUrl = fileUrl;
+            finalFileName = fileUrl.split('/').pop() || 'External File';
+            finalFileSize = 0;
+        }
+
+        // Submit resource metadata
+        submitBtn.textContent = 'Submitting...';
         const response = await fetch('/api/resources/submit', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                courseCode,
+                title,
+                type,
+                year,
+                description: document.getElementById('submit-description').value || '',
+                tags: JSON.stringify(tags),
+                status: 'pending',
+                fileUrl: finalFileUrl,
+                fileName: finalFileName,
+                fileSize: finalFileSize
+            })
         });
 
         // Check if response is JSON
@@ -248,6 +260,61 @@ async function handleSubmit(e) {
         showMessage(error.message || 'Network error. Please check your connection and try again.', 'error');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Resource';
+    }
+}
+
+// Upload file directly to R2 using presigned URL
+async function uploadFileDirectly(file, submitBtn) {
+    try {
+        // Request presigned URL from server
+        submitBtn.textContent = 'Preparing upload...';
+        console.log('Requesting presigned URL for:', file.name, 'Type:', file.type);
+        
+        const presignedResponse = await fetch('/api/resources/presigned-url', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fileName: file.name,
+                fileType: file.type || 'application/octet-stream'
+            })
+        });
+
+        console.log('Presigned response status:', presignedResponse.status);
+
+        if (!presignedResponse.ok) {
+            const error = await presignedResponse.json();
+            console.error('Presigned URL error:', error);
+            throw new Error(error.error || 'Failed to get upload URL');
+        }
+
+        const { uploadUrl, publicUrl } = await presignedResponse.json();
+        console.log('Got presigned URL, uploading to R2...');
+
+        // Upload file directly to R2
+        submitBtn.textContent = `Uploading ${formatFileSize(file.size)}...`;
+        const uploadResponse = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: file,
+            headers: {
+                'Content-Type': file.type || 'application/octet-stream'
+            }
+        });
+
+        console.log('Upload response status:', uploadResponse.status);
+
+        if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error('Upload failed:', errorText);
+            throw new Error('File upload failed: ' + uploadResponse.status);
+        }
+
+        console.log('Upload successful! Public URL:', publicUrl);
+        return publicUrl;
+    } catch (error) {
+        console.error('Upload error:', error);
+        throw new Error(error.message || 'Failed to upload file');
     }
 }
 

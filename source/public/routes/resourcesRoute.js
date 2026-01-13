@@ -17,7 +17,7 @@ import {
   incrementDownloadCount,
   addResource
 } from '../services/resourcesDbService.js';
-import { uploadFile } from '../services/cloudflareService.js';
+import { uploadFile, generatePresignedUploadUrl } from '../services/cloudflareService.js';
 
 const resourcesRouter = express.Router();
 
@@ -52,35 +52,72 @@ const upload = multer({
   }
 });
 
-// POST /api/resources/submit - Public endpoint for student submissions (no auth)
-resourcesRouter.post('/submit', upload.single('file'), async (req, res) => {
+// POST /api/resources/presigned-url - Generate presigned URL for direct upload
+resourcesRouter.post('/presigned-url', async (req, res) => {
   try {
-    const { courseCode, title, type, year, fileUrl, description, tags, status } = req.body;
+    const { fileName, fileType } = req.body;
 
-    // Check if file is uploaded or URL is provided
-    let finalFileUrl, finalFileName, finalFileSize;
+    if (!fileName || !fileType) {
+      return res.status(400).json({ error: 'fileName and fileType are required' });
+    }
 
-    if (req.file) {
-      // File uploaded - upload to Cloudflare R2
-      const uploadResult = await uploadFile(req.file.buffer, req.file.originalname, req.file.mimetype);
-      finalFileUrl = uploadResult.fileUrl;
-      finalFileName = uploadResult.fileName;
-      finalFileSize = uploadResult.fileSize;
-    } else if (fileUrl) {
-      // URL provided
-      finalFileUrl = fileUrl;
-      finalFileName = fileUrl.split('/').pop().split('?')[0] || 'resource';
-      finalFileSize = null;
-    } else {
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-rar',
+      'application/octet-stream', // Generic binary, some browsers use this for RAR
+      'image/png',
+      'image/jpeg',
+      'image/jpg',
+    ];
+
+    // For RAR files, also check file extension since MIME type can vary
+    const isRarFile = fileName.toLowerCase().endsWith('.rar');
+    
+    if (!allowedTypes.includes(fileType) && !isRarFile) {
       return res.status(400).json({ 
-        error: 'Either file upload or fileUrl is required' 
+        error: `Invalid file type (${fileType}). Only PDF, DOC, DOCX, PPT, PPTX, ZIP, RAR, PNG, and JPG files are allowed.` 
       });
     }
 
-    if (!courseCode || !title || !type || !year) {
+    const { uploadUrl, fileKey, publicUrl } = await generatePresignedUploadUrl(fileName, fileType);
+
+    res.json({
+      uploadUrl,
+      fileKey,
+      publicUrl,
+      fileName
+    });
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    res.status(500).json({ error: 'Failed to generate upload URL', message: error.message });
+  }
+});
+
+// POST /api/resources/submit - Public endpoint for student submissions (no auth)
+resourcesRouter.post('/submit', async (req, res) => {
+  try {
+    const { courseCode, title, type, year, fileUrl, fileName, fileSize, description, tags, status } = req.body;
+
+    // Validate required fields
+    if (!courseCode || !title || !type || !year || !fileUrl) {
       return res.status(400).json({ 
-        error: 'Missing required fields: courseCode, title, type, year' 
+        error: 'Missing required fields. Please provide courseCode, title, type, year, and fileUrl.' 
       });
+    }
+
+    // Parse tags if it's a string
+    let parsedTags = [];
+    if (tags) {
+      parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
     }
 
     const submissionData = {
@@ -89,10 +126,10 @@ resourcesRouter.post('/submit', upload.single('file'), async (req, res) => {
       type,
       description: description || '',
       year: parseInt(year),
-      fileUrl: finalFileUrl,
-      fileName: finalFileName,
-      fileSize: finalFileSize,
-      tags: tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [],
+      fileUrl,
+      fileName: fileName || fileUrl.split('/').pop() || 'resource',
+      fileSize: fileSize || null,
+      tags: parsedTags,
       downloads: 0,
       status: status || 'pending',
       uploadDate: new Date()

@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 
 // Initialize Cloudflare R2 client (S3-compatible)
@@ -71,5 +72,41 @@ export async function deleteFile(fileUrl) {
   } catch (error) {
     console.error('Error deleting file from R2:', error);
     return false;
+  }
+}
+
+/**
+ * Generate a presigned URL for direct upload to R2
+ * @param {string} originalName - Original filename
+ * @param {string} mimeType - File MIME type
+ * @returns {Promise<{uploadUrl: string, fileKey: string, publicUrl: string}>}
+ */
+export async function generatePresignedUploadUrl(originalName, mimeType) {
+  try {
+    // Generate unique filename
+    const fileExtension = originalName.split('.').pop();
+    const uniqueFileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${fileExtension}`;
+    
+    // Create upload command
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: uniqueFileName,
+      ContentType: mimeType,
+    });
+
+    // Generate presigned URL (valid for 10 minutes)
+    const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 600 });
+    
+    // Construct public URL
+    const publicUrl = `${PUBLIC_URL}/${uniqueFileName}`;
+    
+    return {
+      uploadUrl,
+      fileKey: uniqueFileName,
+      publicUrl,
+    };
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    throw new Error('Failed to generate upload URL');
   }
 }
