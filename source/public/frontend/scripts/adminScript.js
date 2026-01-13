@@ -368,6 +368,27 @@ async function handleCourseSubmit(e) {
     department: document.getElementById('course-department').value
   };
 
+  // Check for duplicates only when adding a new course (not editing)
+  if (!courseId) {
+    const duplicateCode = allCourses.find(c => 
+      c.courseCode.toLowerCase() === courseData.courseCode.toLowerCase()
+    );
+    
+    if (duplicateCode) {
+      formError.textContent = `A course with code "${courseData.courseCode}" already exists.`;
+      return;
+    }
+
+    const duplicateName = allCourses.find(c => 
+      c.courseName.toLowerCase() === courseData.courseName.toLowerCase()
+    );
+    
+    if (duplicateName) {
+      formError.textContent = `A course with name "${courseData.courseName}" already exists.`;
+      return;
+    }
+  }
+
   try {
     if (courseId) {
       await updateCourse(courseId, courseData);
