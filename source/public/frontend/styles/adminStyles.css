@@ -12,6 +12,17 @@
     --shadow-lg: rgba(0, 0, 0, 0.2);
 }
 
+/* Text Selection Highlight */
+::selection {
+    background-color: var(--primary-maroon);
+    color: var(--white);
+}
+
+::-moz-selection {
+    background-color: var(--primary-maroon);
+    color: var(--white);
+}
+
 /* Toast Notifications */
 .toast {
     position: fixed;
