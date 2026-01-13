@@ -8,9 +8,15 @@ const departmentFilter = document.getElementById('department-filter');
 const resetButton = document.getElementById('filter-reset');
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
+const prevPageBtn = document.getElementById('prev-page');
+const nextPageBtn = document.getElementById('next-page');
+const pageInfo = document.getElementById('page-info');
 
 // Store all courses globally for filtering
 let allCourses = [];
+let filteredCourses = [];
+let currentPage = 1;
+const coursesPerPage = 9;
 
 // View management
 function showView(viewName) {
@@ -74,12 +80,14 @@ async function loadCourses() {
     
     // Store courses globally
     allCourses = courses;
+    filteredCourses = courses;
     
     // Populate filters
     populateFilters(courses);
     
-    // Display all courses
-    displayCourses(courses);
+    // Reset to first page and display
+    currentPage = 1;
+    displayCourses(filteredCourses);
     
   } catch (error) {
     console.error('Error loading courses:', error);
@@ -87,7 +95,7 @@ async function loadCourses() {
   }
 }
 
-// Display courses
+// Display courses with pagination
 function displayCourses(courses) {
   // Clear the grid
   coursesGrid.innerHTML = '';
@@ -95,13 +103,39 @@ function displayCourses(courses) {
   // Check if there are courses
   if (!courses || courses.length === 0) {
     coursesGrid.innerHTML = '<p class="no-courses">No courses available yet.</p>';
+    updatePaginationControls(0);
     return;
   }
   
-  // Create a card for each course
-  courses.forEach(course => {
+  // Calculate pagination
+  const totalPages = Math.ceil(courses.length / coursesPerPage);
+  const startIndex = (currentPage - 1) * coursesPerPage;
+  const endIndex = startIndex + coursesPerPage;
+  const coursesToDisplay = courses.slice(startIndex, endIndex);
+  
+  // Create a card for each course on current page
+  coursesToDisplay.forEach(course => {
     createCourseCard(course);
   });
+  
+  // Update pagination controls
+  updatePaginationControls(totalPages);
+  
+  // Scroll to top of courses section
+  document.querySelector('.courses-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Update pagination controls
+function updatePaginationControls(totalPages) {
+  if (totalPages <= 1) {
+    prevPageBtn.disabled = true;
+    nextPageBtn.disabled = true;
+    pageInfo.textContent = totalPages === 0 ? 'No results' : `Page 1 of 1`;
+  } else {
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  }
 }
 
 // Create a course card from template
@@ -209,7 +243,7 @@ function applyFilters() {
   const selectedDepartment = departmentFilter.value;
   const searchTerm = searchInput.value.toLowerCase().trim();
 
-  let filteredCourses = [...allCourses];
+  filteredCourses = [...allCourses];
 
   // Filter by search term
   if (searchTerm) {
@@ -236,12 +270,10 @@ function applyFilters() {
     filteredCourses = filteredCourses.filter(c => c.department === selectedDepartment);
   }
   
-  // Display message if no courses match
-  if(filteredCourses.length === 0) {
-    coursesGrid.innerHTML = '<p class="no-courses">No courses match the selected filters.</p>';
-    return;
-  }
-  // Display filtered courses
+  // Reset to first page when filters change
+  currentPage = 1;
+  
+  // Display filtered courses with pagination
   displayCourses(filteredCourses);
 }
 
@@ -255,7 +287,25 @@ function resetFilters() {
   departmentFilter.disabled = true;
   departmentFilter.innerHTML = '<option value="">Select a college first</option>';
   
-  displayCourses(allCourses);
+  filteredCourses = allCourses;
+  currentPage = 1;
+  displayCourses(filteredCourses);
+}
+
+// Pagination handlers
+function goToNextPage() {
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    displayCourses(filteredCourses);
+  }
+}
+
+function goToPreviousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    displayCourses(filteredCourses);
+  }
 }
 
 // Initialize when DOM is loaded
@@ -263,6 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCourses();
   setupNavigation();
   handleRouteChange();
+  
+  // Setup pagination button listeners
+  nextPageBtn.addEventListener('click', goToNextPage);
+  prevPageBtn.addEventListener('click', goToPreviousPage);
+  
   // Sync resource counts in background (non-blocking)
   syncResourceCounts().catch(err => console.warn('Failed to sync resource counts:', err));
 });
