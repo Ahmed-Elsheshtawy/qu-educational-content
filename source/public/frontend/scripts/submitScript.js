@@ -174,6 +174,12 @@ async function handleSubmit(e) {
         return;
     }
 
+    // Check file size limit (Vercel serverless limit is 4.5MB)
+    if (file && file.size > 4.5 * 1024 * 1024) {
+        showMessage('File size exceeds 4.5MB limit. Please use a file sharing service (Google Drive, Dropbox, etc.) and provide the link instead.', 'error');
+        return;
+    }
+
     // Create FormData for file upload
     const formData = new FormData();
     formData.append('courseCode', document.getElementById('submit-course-code').value);
