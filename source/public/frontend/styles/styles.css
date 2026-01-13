@@ -474,11 +474,30 @@ body {
 .about-section {
     padding: 4rem 0;
     min-height: calc(100vh - 200px);
+    background: linear-gradient(to bottom, var(--background-white) 0%, var(--background-light) 100%);
 }
 
 .about-content {
-    max-width: 800px;
-    margin: 2rem auto 0;
+    max-width: 850px;
+    margin: 2.5rem auto 0;
+    background: var(--background-white);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.about-intro {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--accent-gold);
+}
+
+.about-lead {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: var(--text-dark);
+    font-weight: 400;
+    margin: 0;
 }
 
 .about-block {
@@ -490,33 +509,67 @@ body {
     font-weight: 600;
     color: var(--primary-maroon);
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.about-block h3::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: var(--accent-gold);
+    border-radius: 2px;
 }
 
 .about-block p {
     font-size: 1.05rem;
     line-height: 1.8;
-    color: var(--text-dark);
+    color: #555;
 }
 
 .about-block ul {
     list-style: none;
     padding: 0;
+    margin-top: 1rem;
 }
 
 .about-block ul li {
     font-size: 1.05rem;
     line-height: 1.8;
-    color: var(--text-dark);
+    color: #555;
     padding-left: 1.5rem;
     position: relative;
+    margin-bottom: 0.75rem;
 }
 
 .about-block ul li::before {
-    content: "✓";
+    content: '●';
     position: absolute;
     left: 0;
-    color: var(--primary-maroon);
+    color: var(--accent-gold);
     font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.about-disclaimer {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(139, 21, 56, 0.05) 0%, rgba(196, 169, 98, 0.05) 100%);
+    border-left: 4px solid var(--primary-maroon);
+    border-radius: 8px;
+}
+
+.about-disclaimer p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.about-disclaimer strong {
+    color: var(--primary-maroon);
+    font-weight: 600;
 }
 
 /* Footer */
