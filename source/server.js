@@ -53,10 +53,16 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'frontend', 'index.html'));
 });
 
-app.listen(3000, () => {
-    connectToDatabase();
-  console.log('Server is running on port 3000, http://localhost:3000');
-});
+// Connect to database immediately for serverless
+connectToDatabase();
+
+// Only listen on port in development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}, http://localhost:${PORT}`);
+  });
+}
 
 // Export for Vercel serverless
 export default app;
