@@ -35,25 +35,23 @@
                 <div class="hero-content">
                     <h2 class="hero-title">Academic Resources Hub</h2>
                     <p class="hero-subtitle">Access lecture notes, past exams, and study materials for Qatar University courses</p>
-                    <div class="search-bar">
-                        <input type="text" id="search-input" class="search-input" placeholder="Search for courses or materials...">
-                        <button id="search-button" class="search-button">Search</button>
+                    
+                    <!-- Search and Filters Combined -->
+                    <div class="search-filter-container">
+                        <div class="search-bar">
+                            <input type="text" id="search-input" class="search-input" placeholder="Search for courses or materials...">
+                        </div>
+                        
+                        <div class="filters">
+                            <select id="college-filter" class="filter-select">
+                                <option value="">All Colleges</option>
+                            </select>
+                            <select id="department-filter" class="filter-select">
+                                <option value="">All Departments</option>
+                            </select>
+                            <button id="filter-reset" class="filter-reset">Reset</button>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Filters Section -->
-        <section class="filters-section">
-            <div class="container">
-                <div class="filters">
-                    <select id="college-filter" class="filter-select">
-                        <option value="">All Colleges</option>
-                    </select>
-                    <select id="department-filter" class="filter-select">
-                        <option value="">All Departments</option>
-                    </select>
-                    <button id="filter-reset" class="filter-reset">Reset Filters</button>
                 </div>
             </div>
         </section>

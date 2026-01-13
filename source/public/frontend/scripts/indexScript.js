@@ -7,7 +7,6 @@ const collegeFilter = document.getElementById('college-filter');
 const departmentFilter = document.getElementById('department-filter');
 const resetButton = document.getElementById('filter-reset');
 const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
 const prevPageBtn = document.getElementById('prev-page');
 const nextPageBtn = document.getElementById('next-page');
 const pageInfo = document.getElementById('page-info');
@@ -96,7 +95,7 @@ async function loadCourses() {
 }
 
 // Display courses with pagination
-function displayCourses(courses) {
+function displayCourses(courses, shouldScroll = false) {
   // Clear the grid
   coursesGrid.innerHTML = '';
   
@@ -121,8 +120,10 @@ function displayCourses(courses) {
   // Update pagination controls
   updatePaginationControls(totalPages);
   
-  // Scroll to top of courses section
-  document.querySelector('.courses-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Only scroll when navigating pages, not when filtering
+  if (shouldScroll) {
+    document.querySelector('.courses-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Update pagination controls
@@ -192,9 +193,8 @@ function populateFilters(courses) {
   departmentFilter.addEventListener('change', applyFilters);
   resetButton.addEventListener('click', resetFilters);
   
-  // Add search event listeners
+  // Add search event listeners - triggers on input change
   searchInput.addEventListener('input', applyFilters);
-  searchButton.addEventListener('click', applyFilters);
   
   // Allow Enter key to search
   searchInput.addEventListener('keypress', (e) => {
@@ -297,14 +297,14 @@ function goToNextPage() {
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
   if (currentPage < totalPages) {
     currentPage++;
-    displayCourses(filteredCourses);
+    displayCourses(filteredCourses, true);
   }
 }
 
 function goToPreviousPage() {
   if (currentPage > 1) {
     currentPage--;
-    displayCourses(filteredCourses);
+    displayCourses(filteredCourses, true);
   }
 }
 
