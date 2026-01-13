@@ -27,6 +27,17 @@ body {
     line-height: 1.6;
 }
 
+/* Text Selection Highlight */
+::selection {
+    background-color: var(--primary-maroon);
+    color: var(--text-light);
+}
+
+::-moz-selection {
+    background-color: var(--primary-maroon);
+    color: var(--text-light);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 12px;
