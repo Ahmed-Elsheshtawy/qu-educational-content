@@ -115,9 +115,9 @@ adminRouter.put('/resources/:id', async (req, res) => {
 // DELETE /api/admin/resources/:id - Delete a resource
 adminRouter.delete('/resources/:id', async (req, res) => {
   try {
-    // Optionally fetch the resource first to get courseId for decrementing count
-    const resource = await deleteResource(req.params.id);
-    if (!resource) {
+    // Delete the resource (returns true if successful, false if not found)
+    const deleted = await deleteResource(req.params.id);
+    if (!deleted) {
       return res.status(404).json({ error: 'Resource not found' });
     }
 
@@ -126,7 +126,7 @@ adminRouter.delete('/resources/:id', async (req, res) => {
       await decrementResourceCount(req.body.courseId);
     }
 
-    res.json({ message: 'Resource deleted successfully' });
+    res.json({ message: 'Resource deleted successfully', success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete resource', message: error.message });
   }

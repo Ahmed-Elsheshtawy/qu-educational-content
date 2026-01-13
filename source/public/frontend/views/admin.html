@@ -30,6 +30,22 @@
                 <button id="add-course-btn" class="btn btn-primary">Add New Course</button>
             </div>
 
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="courses-college-filter">College:</label>
+                    <select id="courses-college-filter" class="admin-filter">
+                        <option value="">All Colleges</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="courses-department-filter">Department:</label>
+                    <select id="courses-department-filter" class="admin-filter" disabled>
+                        <option value="">Select a college first</option>
+                    </select>
+                </div>
+                <button id="courses-reset-filter" class="btn btn-secondary">Reset Filters</button>
+            </div>
+
             <div class="table-container">
                 <table class="admin-table">
                     <thead>
@@ -58,11 +74,24 @@
 
             <div class="filters-section">
                 <div class="filter-group">
-                    <label for="resource-course-filter">Filter by Course:</label>
-                    <select id="resource-course-filter">
-                        <option value="">All Courses</option>
+                    <label for="resources-college-filter">College:</label>
+                    <select id="resources-college-filter" class="admin-filter">
+                        <option value="">All Colleges</option>
                     </select>
                 </div>
+                <div class="filter-group">
+                    <label for="resources-department-filter">Department:</label>
+                    <select id="resources-department-filter" class="admin-filter" disabled>
+                        <option value="">Select a college first</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="resource-course-filter">Course:</label>
+                    <select id="resource-course-filter" class="admin-filter" disabled>
+                        <option value="">Select a department first</option>
+                    </select>
+                </div>
+                <button id="resources-reset-filter" class="btn btn-secondary">Reset Filters</button>
             </div>
 
             <div class="table-container">
@@ -89,6 +118,28 @@
             <div class="section-header">
                 <h2>Pending Submissions</h2>
                 <span class="badge" id="pending-count">0</span>
+            </div>
+
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="pending-college-filter">College:</label>
+                    <select id="pending-college-filter" class="admin-filter">
+                        <option value="">All Colleges</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="pending-department-filter">Department:</label>
+                    <select id="pending-department-filter" class="admin-filter" disabled>
+                        <option value="">Select a college first</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="pending-course-filter">Course:</label>
+                    <select id="pending-course-filter" class="admin-filter" disabled>
+                        <option value="">Select a department first</option>
+                    </select>
+                </div>
+                <button id="pending-reset-filter" class="btn btn-secondary">Reset Filters</button>
             </div>
 
             <div class="table-container">

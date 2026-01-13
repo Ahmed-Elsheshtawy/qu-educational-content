@@ -73,6 +73,9 @@ function setupEventListeners() {
   document.getElementById('pending-approve-btn').addEventListener('click', handlePendingApprove);
   document.getElementById('pending-reject-btn').addEventListener('click', handlePendingReject);
 
+  // Filter listeners
+  setupFilterListeners();
+
   // Close modals
   closeButtons.forEach(btn => {
     btn.addEventListener('click', () => closeAllModals());
@@ -121,6 +124,7 @@ async function loadCourses() {
     allCourses = Array.isArray(data) ? data : (data.courses || []);
     renderCoursesTable();
     populateResourceCourseFilters();
+    populateAllFilters();
   } catch (error) {
     console.error('Failed to load courses:', error);
     allCourses = [];
@@ -129,15 +133,15 @@ async function loadCourses() {
 }
 
 // Render courses table
-function renderCoursesTable() {
+function renderCoursesTable(courses = allCourses) {
   const tbody = document.getElementById('courses-table-body');
   
-  if (allCourses.length === 0) {
+  if (courses.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No courses found. Add your first course!</td></tr>';
     return;
   }
 
-  tbody.innerHTML = allCourses.map(course => `
+  tbody.innerHTML = courses.map(course => `
     <tr>
       <td>${course.courseCode}</td>
       <td>${course.courseName}</td>
@@ -208,30 +212,299 @@ function formatResourceType(type) {
 
 // Populate resource course filter
 function populateResourceCourseFilters() {
-  const select = document.getElementById('resource-course-filter');
-  const courseCodeSelect = document.getElementById('resource-course-code');
+  const resourceCourseCodeSelect = document.getElementById('resource-course-code');
   
   const options = allCourses.map(course => 
     `<option value="${course.courseCode}">${course.courseCode} - ${course.courseName}</option>`
   ).join('');
   
-  select.innerHTML = '<option value="">All Courses</option>' + options;
-  courseCodeSelect.innerHTML = '<option value="">Select Course</option>' + options;
+  resourceCourseCodeSelect.innerHTML = '<option value="">Select Course</option>' + options;
+}
 
-  // Add filter listener
-  select.addEventListener('change', filterResources);
+// Setup filter listeners
+function setupFilterListeners() {
+  // Courses filters
+  const coursesCollegeFilter = document.getElementById('courses-college-filter');
+  const coursesDepartmentFilter = document.getElementById('courses-department-filter');
+  const coursesResetBtn = document.getElementById('courses-reset-filter');
+  
+  coursesCollegeFilter.addEventListener('change', handleCoursesCollegeChange);
+  coursesDepartmentFilter.addEventListener('change', filterCourses);
+  coursesResetBtn.addEventListener('click', resetCoursesFilters);
+
+  // Resources filters
+  const resourcesCollegeFilter = document.getElementById('resources-college-filter');
+  const resourcesDepartmentFilter = document.getElementById('resources-department-filter');
+  const resourcesCourseFilter = document.getElementById('resource-course-filter');
+  const resourcesResetBtn = document.getElementById('resources-reset-filter');
+  
+  resourcesCollegeFilter.addEventListener('change', handleResourcesCollegeChange);
+  resourcesDepartmentFilter.addEventListener('change', handleResourcesDepartmentChange);
+  resourcesCourseFilter.addEventListener('change', filterResources);
+  resourcesResetBtn.addEventListener('click', resetResourcesFilters);
+
+  // Pending filters
+  const pendingCollegeFilter = document.getElementById('pending-college-filter');
+  const pendingDepartmentFilter = document.getElementById('pending-department-filter');
+  const pendingCourseFilter = document.getElementById('pending-course-filter');
+  const pendingResetBtn = document.getElementById('pending-reset-filter');
+  
+  pendingCollegeFilter.addEventListener('change', handlePendingCollegeChange);
+  pendingDepartmentFilter.addEventListener('change', handlePendingDepartmentChange);
+  pendingCourseFilter.addEventListener('change', filterPendingResources);
+  pendingResetBtn.addEventListener('click', resetPendingFilters);
+}
+
+// Populate all filters
+function populateAllFilters() {
+  const colleges = [...new Set(allCourses.map(c => c.college).filter(Boolean))].sort();
+  
+  // Courses filters
+  const coursesCollegeFilter = document.getElementById('courses-college-filter');
+  coursesCollegeFilter.innerHTML = '<option value="">All Colleges</option>' + 
+    colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+  
+  // Resources filters
+  const resourcesCollegeFilter = document.getElementById('resources-college-filter');
+  resourcesCollegeFilter.innerHTML = '<option value="">All Colleges</option>' + 
+    colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+  
+  // Pending filters
+  const pendingCollegeFilter = document.getElementById('pending-college-filter');
+  pendingCollegeFilter.innerHTML = '<option value="">All Colleges</option>' + 
+    colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+// COURSES FILTERS
+function handleCoursesCollegeChange() {
+  const college = document.getElementById('courses-college-filter').value;
+  const departmentFilter = document.getElementById('courses-department-filter');
+  
+  if (!college) {
+    departmentFilter.disabled = true;
+    departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+    filterCourses();
+    return;
+  }
+  
+  const departments = [...new Set(
+    allCourses
+      .filter(c => c.college === college)
+      .map(c => c.department)
+      .filter(Boolean)
+  )].sort();
+  
+  departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
+    departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  departmentFilter.disabled = false;
+  
+  filterCourses();
+}
+
+function filterCourses() {
+  const college = document.getElementById('courses-college-filter').value;
+  const department = document.getElementById('courses-department-filter').value;
+  
+  let filtered = [...allCourses];
+  
+  if (college) {
+    filtered = filtered.filter(c => c.college === college);
+  }
+  
+  if (department) {
+    filtered = filtered.filter(c => c.department === department);
+  }
+  
+  renderCoursesTable(filtered);
+}
+
+function resetCoursesFilters() {
+  document.getElementById('courses-college-filter').value = '';
+  document.getElementById('courses-department-filter').value = '';
+  document.getElementById('courses-department-filter').disabled = true;
+  document.getElementById('courses-department-filter').innerHTML = '<option value="">Select a college first</option>';
+  renderCoursesTable(allCourses);
+}
+
+// RESOURCES FILTERS
+function handleResourcesCollegeChange() {
+  const college = document.getElementById('resources-college-filter').value;
+  const departmentFilter = document.getElementById('resources-department-filter');
+  const courseFilter = document.getElementById('resource-course-filter');
+  
+  if (!college) {
+    departmentFilter.disabled = true;
+    departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+    courseFilter.disabled = true;
+    courseFilter.innerHTML = '<option value="">Select a department first</option>';
+    filterResources();
+    return;
+  }
+  
+  const departments = [...new Set(
+    allCourses
+      .filter(c => c.college === college)
+      .map(c => c.department)
+      .filter(Boolean)
+  )].sort();
+  
+  departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
+    departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  departmentFilter.disabled = false;
+  
+  courseFilter.disabled = true;
+  courseFilter.innerHTML = '<option value="">Select a department first</option>';
+  
+  filterResources();
+}
+
+function handleResourcesDepartmentChange() {
+  const college = document.getElementById('resources-college-filter').value;
+  const department = document.getElementById('resources-department-filter').value;
+  const courseFilter = document.getElementById('resource-course-filter');
+  
+  if (!department) {
+    courseFilter.disabled = true;
+    courseFilter.innerHTML = '<option value="">Select a department first</option>';
+    filterResources();
+    return;
+  }
+  
+  const courses = allCourses
+    .filter(c => c.college === college && c.department === department)
+    .sort((a, b) => a.courseCode.localeCompare(b.courseCode));
+  
+  courseFilter.innerHTML = '<option value="">All Courses</option>' + 
+    courses.map(c => `<option value="${c.courseCode}">${c.courseCode} - ${c.courseName}</option>`).join('');
+  courseFilter.disabled = false;
+  
+  filterResources();
 }
 
 // Filter resources
 function filterResources() {
-  const selectedCourse = document.getElementById('resource-course-filter').value;
+  const college = document.getElementById('resources-college-filter').value;
+  const department = document.getElementById('resources-department-filter').value;
+  const courseCode = document.getElementById('resource-course-filter').value;
   
-  if (selectedCourse) {
-    const filtered = allResources.filter(r => r.courseCode === selectedCourse);
-    renderResourcesTable(filtered);
-  } else {
-    renderResourcesTable(allResources);
+  let filtered = [...allResources];
+  
+  if (college) {
+    const collegeCourses = allCourses.filter(c => c.college === college).map(c => c.courseCode);
+    filtered = filtered.filter(r => collegeCourses.includes(r.courseCode));
   }
+  
+  if (department) {
+    const deptCourses = allCourses.filter(c => c.department === department).map(c => c.courseCode);
+    filtered = filtered.filter(r => deptCourses.includes(r.courseCode));
+  }
+  
+  if (courseCode) {
+    filtered = filtered.filter(r => r.courseCode === courseCode);
+  }
+  
+  renderResourcesTable(filtered);
+}
+
+function resetResourcesFilters() {
+  document.getElementById('resources-college-filter').value = '';
+  document.getElementById('resources-department-filter').value = '';
+  document.getElementById('resource-course-filter').value = '';
+  document.getElementById('resources-department-filter').disabled = true;
+  document.getElementById('resources-department-filter').innerHTML = '<option value="">Select a college first</option>';
+  document.getElementById('resource-course-filter').disabled = true;
+  document.getElementById('resource-course-filter').innerHTML = '<option value="">Select a department first</option>';
+  renderResourcesTable(allResources);
+}
+
+// PENDING FILTERS
+function handlePendingCollegeChange() {
+  const college = document.getElementById('pending-college-filter').value;
+  const departmentFilter = document.getElementById('pending-department-filter');
+  const courseFilter = document.getElementById('pending-course-filter');
+  
+  if (!college) {
+    departmentFilter.disabled = true;
+    departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+    courseFilter.disabled = true;
+    courseFilter.innerHTML = '<option value="">Select a department first</option>';
+    filterPendingResources();
+    return;
+  }
+  
+  const departments = [...new Set(
+    allCourses
+      .filter(c => c.college === college)
+      .map(c => c.department)
+      .filter(Boolean)
+  )].sort();
+  
+  departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
+    departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  departmentFilter.disabled = false;
+  
+  courseFilter.disabled = true;
+  courseFilter.innerHTML = '<option value="">Select a department first</option>';
+  
+  filterPendingResources();
+}
+
+function handlePendingDepartmentChange() {
+  const college = document.getElementById('pending-college-filter').value;
+  const department = document.getElementById('pending-department-filter').value;
+  const courseFilter = document.getElementById('pending-course-filter');
+  
+  if (!department) {
+    courseFilter.disabled = true;
+    courseFilter.innerHTML = '<option value="">Select a department first</option>';
+    filterPendingResources();
+    return;
+  }
+  
+  const courses = allCourses
+    .filter(c => c.college === college && c.department === department)
+    .sort((a, b) => a.courseCode.localeCompare(b.courseCode));
+  
+  courseFilter.innerHTML = '<option value="">All Courses</option>' + 
+    courses.map(c => `<option value="${c.courseCode}">${c.courseCode} - ${c.courseName}</option>`).join('');
+  courseFilter.disabled = false;
+  
+  filterPendingResources();
+}
+
+function filterPendingResources() {
+  const college = document.getElementById('pending-college-filter').value;
+  const department = document.getElementById('pending-department-filter').value;
+  const courseCode = document.getElementById('pending-course-filter').value;
+  
+  let filtered = [...pendingResources];
+  
+  if (college) {
+    const collegeCourses = allCourses.filter(c => c.college === college).map(c => c.courseCode);
+    filtered = filtered.filter(r => collegeCourses.includes(r.courseCode));
+  }
+  
+  if (department) {
+    const deptCourses = allCourses.filter(c => c.department === department).map(c => c.courseCode);
+    filtered = filtered.filter(r => deptCourses.includes(r.courseCode));
+  }
+  
+  if (courseCode) {
+    filtered = filtered.filter(r => r.courseCode === courseCode);
+  }
+  
+  renderPendingTable(filtered);
+}
+
+function resetPendingFilters() {
+  document.getElementById('pending-college-filter').value = '';
+  document.getElementById('pending-department-filter').value = '';
+  document.getElementById('pending-course-filter').value = '';
+  document.getElementById('pending-department-filter').disabled = true;
+  document.getElementById('pending-department-filter').innerHTML = '<option value="">Select a college first</option>';
+  document.getElementById('pending-course-filter').disabled = true;
+  document.getElementById('pending-course-filter').innerHTML = '<option value="">Select a department first</option>';
+  renderPendingTable(pendingResources);
 }
 
 // Load pending resources
