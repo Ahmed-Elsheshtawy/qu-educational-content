@@ -1,0 +1,30 @@
+{
+  "name": "source",
+  "version": "1.0.0",
+  "description": "The go-to website for any content related to QU Lecture Notes, Useful Content, Papers, Past Exams, and more!",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "QU",
+    "Past",
+    "Exams",
+    "Qatar",
+    "University",
+    "Education"
+  ],
+  "author": "Ahmed Elsheshtawy",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.967.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.0.0",
+    "multer": "^2.0.2"
+  },
+  "type": "module"
+}

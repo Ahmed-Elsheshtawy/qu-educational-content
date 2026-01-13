@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - Masdar</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/courseDetail.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">Masdar</h1>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/about" class="nav-link">About</a>
+                    <a href="/submit" class="nav-link">Submit</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Course Header Section -->
+    <section class="course-header-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span class="separator">/</span>
+                <span id="course-code" class="current">Loading...</span>
+            </div>
+            
+            <div class="course-header-content">
+                <div class="course-title-section">
+                    <h1 id="course-name" class="page-title">Loading Course...</h1>
+                    <div class="course-meta-badges">
+                        <span class="meta-badge" id="resource-count">- Resources</span>
+                    </div>
+                </div>
+                
+                <div class="course-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">College</span>
+                        <span id="course-college" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Department</span>
+                        <span id="course-department" class="info-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section class="resources-main-section">
+        <div class="container">
+            <div class="resources-header">
+                <h2 class="resources-title">Resources</h2>
+                <div class="resources-filters">
+                    <select id="type-filter" class="resource-filter">
+                        <option value="">All Types</option>
+                    </select>
+                    <select id="year-filter" class="resource-filter">
+                        <option value="">All Years</option>
+                    </select>
+                </div>
+            </div>
+            <div id="resources-container">
+                <!-- Resources will be dynamically inserted here -->
+                <div class="loading-state">
+                    <p>Loading resources...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource Item Template -->
+    <template id="resource-item-template">
+        <div class="resource-item">
+            <div class="resource-info">
+                <div class="resource-header">
+                    <h4 class="resource-title"></h4>
+                    <span class="resource-type-badge"></span>
+                </div>
+                <p class="resource-description"></p>
+                <div class="resource-meta">
+                    <span class="resource-year"></span>
+                    <span class="resource-downloads"></span>
+                </div>
+                <div class="resource-tags">
+                    <!-- Tags will be inserted here -->
+                </div>
+            </div>
+            <div class="resource-actions">
+                <a href="#" class="download-button" download>
+                    Download
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">&copy; 2026 Masdar. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="../scripts/courseDetailScript.js"></script>
+</body>
+</html>

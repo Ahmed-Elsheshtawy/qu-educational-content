@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Masdar</title>
+    <link rel="stylesheet" href="../styles/loginStyles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="60" height="60" rx="12" fill="#8B1538"/>
+                        <path d="M20 35V25C20 21.686 22.686 19 26 19H34C37.314 19 40 21.686 40 25V35" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="30" cy="35" r="3" fill="white"/>
+                        <path d="M30 38V42" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h1>Admin Login</h1>
+                <p>Masdar Content Management</p>
+            </div>
+
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="password">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 10V7C5 4.239 7.239 2 10 2C12.761 2 15 4.239 15 7V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="3" y="10" width="14" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                            <circle cx="10" cy="14" r="1" fill="currentColor"/>
+                        </svg>
+                        Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter admin password"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Sign In</span>
+                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 3L14 10L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div id="error-message" class="error-message"></div>
+            </form>
+
+            <div class="login-footer">
+                <p>Protected area - Authorized personnel only</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.8;">&copy; 2026 Masdar</p>
+            </div>
+        </div>
+
+        <div class="background-decoration">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+            <div class="circle circle-3"></div>
+        </div>
+    </div>
+
+    <script src="../scripts/loginScript.js"></script>
+</body>
+</html>
