@@ -2,40 +2,114 @@ import { getCourses, submitResource } from '../api/submitApi.js';
 
 // DOM Elements
 const submitForm = document.getElementById('submit-form');
+const collegeSelect = document.getElementById('submit-college');
+const departmentSelect = document.getElementById('submit-department');
 const courseSelect = document.getElementById('submit-course-code');
 const submitMessage = document.getElementById('submit-message');
 const fileInput = document.getElementById('submit-file');
 const fileUrlInput = document.getElementById('submit-file-url');
 const fileNameDisplay = document.getElementById('file-name-display');
 
+// Store all courses for filtering
+let allCourses = [];
+
 // Load courses on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadCourses();
     setupFormHandler();
     setupFileInput();
+    setupCascadingDropdowns();
 });
+
+// Setup cascading dropdowns
+function setupCascadingDropdowns() {
+    collegeSelect.addEventListener('change', handleCollegeChange);
+    departmentSelect.addEventListener('change', handleDepartmentChange);
+}
+
+// Handle college selection
+function handleCollegeChange() {
+    const selectedCollege = collegeSelect.value;
+    
+    if (!selectedCollege) {
+        // Reset department and course dropdowns
+        departmentSelect.disabled = true;
+        departmentSelect.innerHTML = '<option value="">Select College First</option>';
+        courseSelect.disabled = true;
+        courseSelect.innerHTML = '<option value="">Select Department First</option>';
+        return;
+    }
+    
+    // Get unique departments for selected college
+    const departments = [...new Set(
+        allCourses
+            .filter(course => course.college === selectedCollege)
+            .map(course => course.department)
+    )].sort();
+    
+    // Populate department dropdown
+    const departmentOptions = departments
+        .map(dept => `<option value="${dept}">${dept}</option>`)
+        .join('');
+    
+    departmentSelect.innerHTML = '<option value="">Select Department</option>' + departmentOptions;
+    departmentSelect.disabled = false;
+    
+    // Reset course dropdown
+    courseSelect.disabled = true;
+    courseSelect.innerHTML = '<option value="">Select Department First</option>';
+}
+
+// Handle department selection
+function handleDepartmentChange() {
+    const selectedCollege = collegeSelect.value;
+    const selectedDepartment = departmentSelect.value;
+    
+    if (!selectedDepartment) {
+        courseSelect.disabled = true;
+        courseSelect.innerHTML = '<option value="">Select Department First</option>';
+        return;
+    }
+    
+    // Filter courses by college and department
+    const filteredCourses = allCourses.filter(course => 
+        course.college === selectedCollege && 
+        course.department === selectedDepartment
+    );
+    
+    // Populate course dropdown
+    const courseOptions = filteredCourses
+        .sort((a, b) => a.courseCode.localeCompare(b.courseCode))
+        .map(course => `<option value="${course.courseCode}">${course.courseCode} - ${course.courseName}</option>`)
+        .join('');
+    
+    courseSelect.innerHTML = '<option value="">Select Course</option>' + courseOptions;
+    courseSelect.disabled = false;
+}
 
 // Load available courses
 async function loadCourses() {
     try {
         const courses = await getCourses();
-        const coursesArray = Array.isArray(courses) ? courses : (courses.courses || []);
+        allCourses = Array.isArray(courses) ? courses : (courses.courses || []);
         
-        populateCourseSelect(coursesArray);
+        populateCollegeSelect(allCourses);
     } catch (error) {
         console.error('Error loading courses:', error);
         showMessage('Failed to load courses. Please refresh the page.', 'error');
     }
 }
 
-// Populate course dropdown
-function populateCourseSelect(courses) {
-    const options = courses
-        .sort((a, b) => a.courseCode.localeCompare(b.courseCode))
-        .map(course => `<option value="${course.courseCode}">${course.courseCode} - ${course.courseName}</option>`)
+// Populate college dropdown
+function populateCollegeSelect(courses) {
+    // Get unique colleges
+    const colleges = [...new Set(courses.map(course => course.college))].sort();
+    
+    const options = colleges
+        .map(college => `<option value="${college}">${college}</option>`)
         .join('');
     
-    courseSelect.innerHTML = '<option value="">Select Course</option>' + options;
+    collegeSelect.innerHTML = '<option value="">Select College</option>' + options;
 }
 
 // Setup form submission handler

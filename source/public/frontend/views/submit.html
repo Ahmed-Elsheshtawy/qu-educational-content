@@ -38,9 +38,23 @@
             <div class="submit-container">
                 <form id="submit-form" class="submit-form">
                     <div class="form-group">
+                        <label for="submit-college">College *</label>
+                        <select id="submit-college" required>
+                            <option value="">Select College</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="submit-department">Department *</label>
+                        <select id="submit-department" required disabled>
+                            <option value="">Select College First</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="submit-course-code">Course Code *</label>
-                        <select id="submit-course-code" required>
-                            <option value="">Select Course</option>
+                        <select id="submit-course-code" required disabled>
+                            <option value="">Select Department First</option>
                         </select>
                         <small class="form-hint">Don't see your course? An admin will add it.</small>
                     </div>
