@@ -14,7 +14,8 @@ const qatarUniversityData = {
         "Humanities Department",
         "International Affairs Department",
         "Mass Communication Department",
-        "Mathematics, Statistics & Physics Department",
+        "Mathematics and Statistics Department",
+        "Physics and Material Sciences Department",
         "Social Sciences Department"
     ],
     "College of Business and Economics": [
