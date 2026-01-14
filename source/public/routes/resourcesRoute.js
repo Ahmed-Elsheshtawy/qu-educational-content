@@ -157,16 +157,40 @@ resourcesRouter.get('/', async (req, res) => {
   }
 });
 
-// GET /api/resources/:id - Get resource by ID
-resourcesRouter.get('/:id', async (req, res) => {
+// GET /api/resources/search?q=searchTerm - Search resources
+// MUST be before /:id to avoid treating "search" as an id
+resourcesRouter.get('/search', async (req, res) => {
   try {
-    const resource = await fetchResourceById(req.params.id);
-    if (!resource) {
-      return res.status(404).json({ error: 'Resource not found' });
+    const searchTerm = req.query.q;
+    if (!searchTerm) {
+      return res.status(400).json({ error: 'Search term is required' });
     }
-    res.json(resource);
+    const resources = await searchResources(searchTerm);
+    res.json(resources);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch resource', message: error.message });
+    res.status(500).json({ error: 'Failed to search resources', message: error.message });
+  }
+});
+
+// GET /api/resources/popular?limit=10 - Get most downloaded resources
+resourcesRouter.get('/popular', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const resources = await getMostDownloadedResources(limit);
+    res.json(resources);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch popular resources', message: error.message });
+  }
+});
+
+// GET /api/resources/recent?limit=10 - Get recently uploaded resources
+resourcesRouter.get('/recent', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const resources = await getRecentResources(limit);
+    res.json(resources);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch recent resources', message: error.message });
   }
 });
 
@@ -223,42 +247,6 @@ resourcesRouter.get('/tag/:tag', async (req, res) => {
   }
 });
 
-// GET /api/resources/search?q=searchTerm - Search resources
-resourcesRouter.get('/search', async (req, res) => {
-  try {
-    const searchTerm = req.query.q;
-    if (!searchTerm) {
-      return res.status(400).json({ error: 'Search term is required' });
-    }
-    const resources = await searchResources(searchTerm);
-    res.json(resources);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to search resources', message: error.message });
-  }
-});
-
-// GET /api/resources/popular?limit=10 - Get most downloaded resources
-resourcesRouter.get('/popular', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 10;
-    const resources = await getMostDownloadedResources(limit);
-    res.json(resources);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch popular resources', message: error.message });
-  }
-});
-
-// GET /api/resources/recent?limit=10 - Get recently uploaded resources
-resourcesRouter.get('/recent', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 10;
-    const resources = await getRecentResources(limit);
-    res.json(resources);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch recent resources', message: error.message });
-  }
-});
-
 // GET /api/resources/count/:courseCode - Get resource count by course
 resourcesRouter.get('/count/:courseCode', async (req, res) => {
   try {
@@ -286,6 +274,20 @@ resourcesRouter.get('/meta/tags', async (req, res) => {
     res.json(tags);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch tags', message: error.message });
+  }
+});
+
+// GET /api/resources/:id - Get resource by ID
+// MUST be LAST among GET routes to avoid conflicts
+resourcesRouter.get('/:id', async (req, res) => {
+  try {
+    const resource = await fetchResourceById(req.params.id);
+    if (!resource) {
+      return res.status(404).json({ error: 'Resource not found' });
+    }
+    res.json(resource);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch resource', message: error.message });
   }
 });
 

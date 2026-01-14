@@ -18,10 +18,23 @@ export async function fetchResourceById(resourceId) {
 // Fetch resources by course code (only approved for public)
 export async function fetchResourcesByCourseCode(courseCode) {
   const resourcesCollection = await getResourcesCollection();
-  return await resourcesCollection.find({ 
-    courseCode: courseCode,
-    $or: [{ status: 'approved' }, { status: { $exists: false } }]
+  
+  // Normalize course code by removing spaces for comparison
+  const normalizedCode = courseCode.replace(/\s+/g, '');
+  
+  // Find resources matching either format (with or without spaces)
+  const resources = await resourcesCollection.find({ 
+    $or: [
+      { courseCode: courseCode }, // Exact match
+      { courseCode: normalizedCode }, // Without spaces
+      { courseCode: { $regex: `^${normalizedCode.substring(0, 4)}\\s*${normalizedCode.substring(4)}$`, $options: 'i' } } // With optional space
+    ],
+    $and: [
+      { $or: [{ status: 'approved' }, { status: { $exists: false } }] }
+    ]
   }).toArray();
+  
+  return resources;
 }
 
 // Fetch resources by course code and type

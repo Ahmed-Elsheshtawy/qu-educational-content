@@ -8,10 +8,65 @@ import {
   searchCourses,
   getUniqueDepartments,
   getUniqueSemesters,
-  syncResourceCounts
+  syncResourceCounts,
+  addCourse
 } from '../services/coursesDbService.js';
 
 const coursesRouter = express.Router();
+
+// POST /api/courses/request - Submit a new course request (adds directly)
+// MUST be before /:id route to avoid conflict
+coursesRouter.post('/request', async (req, res) => {
+  try {
+    const { courseCode, courseName, department, college } = req.body;
+
+    // Validate required fields
+    if (!courseCode || !courseName || !department || !college) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: courseCode, courseName, department, college' 
+      });
+    }
+
+    // Check if course already exists
+    const existingCourse = await fetchCourseByCourseCode(courseCode);
+    if (existingCourse) {
+      return res.status(409).json({ 
+        error: 'Course already exists',
+        message: `A course with code ${courseCode} is already in the database.`
+      });
+    }
+
+    // Add the course directly to the database
+    const course = await addCourse({
+      courseCode,
+      courseName,
+      college,
+      department,
+      resourceCount: 0
+    });
+
+    res.status(201).json({ 
+      message: 'Course added successfully!', 
+      course 
+    });
+  } catch (error) {
+    console.error('Error adding course:', error);
+    res.status(500).json({ 
+      error: 'Failed to add course', 
+      message: error.message 
+    });
+  }
+});
+
+// POST /api/courses/sync-counts - Sync resource counts (public endpoint)
+coursesRouter.post('/sync-counts', async (req, res) => {
+  try {
+    await syncResourceCounts();
+    res.json({ message: 'Resource counts synced successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to sync resource counts', message: error.message });
+  }
+});
 
 // GET /api/courses - Get all courses
 coursesRouter.get('/', async (req, res) => {
@@ -23,16 +78,18 @@ coursesRouter.get('/', async (req, res) => {
   }
 });
 
-// GET /api/courses/:id - Get course by ID
-coursesRouter.get('/:id', async (req, res) => {
+// GET /api/courses/search?q=searchTerm - Search courses
+// MUST be before /:id to avoid treating "search" as an id
+coursesRouter.get('/search', async (req, res) => {
   try {
-    const course = await fetchCourseById(req.params.id);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
+    const searchTerm = req.query.q;
+    if (!searchTerm) {
+      return res.status(400).json({ error: 'Search term is required' });
     }
-    res.json(course);
+    const courses = await searchCourses(searchTerm);
+    res.json(courses);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch course', message: error.message });
+    res.status(500).json({ error: 'Failed to search courses', message: error.message });
   }
 });
 
@@ -69,20 +126,6 @@ coursesRouter.get('/semester/:semester', async (req, res) => {
   }
 });
 
-// GET /api/courses/search?q=searchTerm - Search courses
-coursesRouter.get('/search', async (req, res) => {
-  try {
-    const searchTerm = req.query.q;
-    if (!searchTerm) {
-      return res.status(400).json({ error: 'Search term is required' });
-    }
-    const courses = await searchCourses(searchTerm);
-    res.json(courses);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to search courses', message: error.message });
-  }
-});
-
 // GET /api/courses/meta/departments - Get unique departments
 coursesRouter.get('/meta/departments', async (req, res) => {
   try {
@@ -103,13 +146,17 @@ coursesRouter.get('/meta/semesters', async (req, res) => {
   }
 });
 
-// POST /api/courses/sync-counts - Sync resource counts (public endpoint)
-coursesRouter.post('/sync-counts', async (req, res) => {
+// GET /api/courses/:id - Get course by ID
+// MUST be LAST among GET routes to avoid conflicts
+coursesRouter.get('/:id', async (req, res) => {
   try {
-    await syncResourceCounts();
-    res.json({ message: 'Resource counts synced successfully' });
+    const course = await fetchCourseById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    res.json(course);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to sync resource counts', message: error.message });
+    res.status(500).json({ error: 'Failed to fetch course', message: error.message });
   }
 });
 

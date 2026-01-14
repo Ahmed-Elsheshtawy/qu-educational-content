@@ -44,6 +44,10 @@ app.get('/admin', authenticateJWT, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'admin.html'));
 });
 
+app.get('/course-submit', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'courseSubmit.html'));
+});
+
 // SPA fallback - serve index.html for client-side routes (excluding API routes and static files)
 app.get(/^\/(?!api).*/, (req, res) => {
   // Don't serve index.html for admin route (handled above) or files with extensions

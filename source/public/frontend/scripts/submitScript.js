@@ -179,7 +179,7 @@ async function handleSubmit(e) {
     }
 
     // Validate required fields
-    const courseCode = document.getElementById('submit-course-code').value;
+    const courseCode = document.getElementById('submit-course-code').value.trim().toUpperCase().replace(/\s+/g, ''); // Remove all spaces
     const title = document.getElementById('submit-title').value;
     const type = document.getElementById('submit-type').value;
     const year = document.getElementById('submit-year').value;
