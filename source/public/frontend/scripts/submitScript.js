@@ -202,11 +202,6 @@ function renderCourseOptions(searchTerm = '') {
             <div class="course-name">${course.courseName}</div>
         `;
         
-        // Mark as selected if it's the current value
-        if (course.courseCode === hiddenSelect.value) {
-            div.classList.add('selected');
-        }
-        
         // Handle selection
         div.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -237,12 +232,6 @@ function renderCourseOptions(searchTerm = '') {
             
             // Close the dropdown
             dropdown.classList.remove('show');
-            
-            // Update visual state
-            dropdown.querySelectorAll('.searchable-select-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            div.classList.add('selected');
         });
         
         dropdown.appendChild(div);
