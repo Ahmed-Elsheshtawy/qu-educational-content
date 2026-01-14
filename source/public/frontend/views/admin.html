@@ -213,9 +213,19 @@
                 
                 <div class="form-group">
                     <label for="resource-course-code">Course Code *</label>
-                    <select id="resource-course-code" required>
-                        <option value="">Select Course</option>
-                    </select>
+                    <div class="searchable-select-wrapper">
+                        <input 
+                            type="text" 
+                            id="resource-course-search" 
+                            class="searchable-select-input" 
+                            placeholder="Type to search courses..." 
+                            autocomplete="off"
+                            spellcheck="false">
+                        <select id="resource-course-code" class="searchable-select-hidden" required>
+                            <option value="">Select Course</option>
+                        </select>
+                        <div class="searchable-select-dropdown" id="resource-course-dropdown"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">

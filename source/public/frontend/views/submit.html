@@ -57,9 +57,19 @@
 
                     <div class="form-group">
                         <label for="submit-course-code">Course Code *</label>
-                        <select id="submit-course-code" required disabled>
-                            <option value="">Select Department First</option>
-                        </select>
+                        <div class="searchable-select-wrapper">
+                            <input 
+                                type="text" 
+                                id="submit-course-search" 
+                                class="searchable-select-input" 
+                                placeholder="Type to search courses..." 
+                                autocomplete="off"
+                                spellcheck="false">
+                            <select id="submit-course-code" class="searchable-select-hidden" required disabled>
+                                <option value="">Select Department First</option>
+                            </select>
+                            <div class="searchable-select-dropdown" id="submit-course-dropdown"></div>
+                        </div>
                         <small class="form-hint">Don't see your course? <a href="/course-submit" style="color: var(--primary-maroon); text-decoration: underline;">Request it here</a></small>
                     </div>
 

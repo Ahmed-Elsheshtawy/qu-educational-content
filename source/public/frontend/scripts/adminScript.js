@@ -94,6 +94,117 @@ function setupEventListeners() {
     }
   });
   */
+  
+  // Setup searchable course select
+  setupSearchableCourseSelect();
+}
+
+// Setup searchable course select dropdown
+function setupSearchableCourseSelect() {
+  const searchInput = document.getElementById('resource-course-search');
+  const dropdown = document.getElementById('resource-course-dropdown');
+  const hiddenSelect = document.getElementById('resource-course-code');
+  
+  if (!searchInput || !dropdown || !hiddenSelect) {
+    console.error('Searchable select elements not found');
+    return;
+  }
+  
+  console.log('Searchable select initialized');
+  
+  // Ensure input is editable
+  searchInput.removeAttribute('readonly');
+  searchInput.removeAttribute('disabled');
+  
+  let selectedValue = '';
+  
+  // Show dropdown on focus
+  searchInput.addEventListener('focus', () => {
+    console.log('Input focused, courses count:', allCourses.length);
+    if (allCourses.length > 0) {
+      renderCourseOptions(allCourses);
+      dropdown.classList.add('show');
+    }
+  });
+  
+  // Show dropdown on click
+  searchInput.addEventListener('click', (e) => {
+    e.stopPropagation();
+    console.log('Input clicked');
+    if (allCourses.length > 0) {
+      renderCourseOptions(allCourses);
+      dropdown.classList.add('show');
+    }
+  });
+  
+  // Filter courses on input
+  searchInput.addEventListener('input', (e) => {
+    console.log('Input event:', e.target.value);
+    const searchTerm = e.target.value.toLowerCase();
+    
+    if (searchTerm === '') {
+      // Show all courses if search is empty
+      renderCourseOptions(allCourses);
+    } else {
+      // Filter courses
+      const filteredCourses = allCourses.filter(course => 
+        course.courseCode.toLowerCase().includes(searchTerm) || 
+        course.courseName.toLowerCase().includes(searchTerm)
+      );
+      renderCourseOptions(filteredCourses);
+    }
+    
+    dropdown.classList.add('show');
+  });
+  
+  // Also listen to keyup for additional debugging
+  searchInput.addEventListener('keyup', (e) => {
+    console.log('Key pressed:', e.key);
+  });
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+  
+  // Render course options
+  function renderCourseOptions(courses) {
+    if (!courses || courses.length === 0) {
+      dropdown.innerHTML = '<div class="searchable-select-no-results">No courses found</div>';
+      return;
+    }
+    
+    dropdown.innerHTML = courses.map(course => `
+      <div class="searchable-select-option" data-value="${course.courseCode}">
+        <div class="course-code">${course.courseCode}</div>
+        <div class="course-name">${course.courseName}</div>
+      </div>
+    `).join('');
+    
+    // Add click handlers to options
+    dropdown.querySelectorAll('.searchable-select-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const value = option.dataset.value;
+        const course = courses.find(c => c.courseCode === value);
+        
+        if (course) {
+          searchInput.value = `${course.courseCode} - ${course.courseName}`;
+          hiddenSelect.value = value;
+          selectedValue = value;
+          dropdown.classList.remove('show');
+          
+          // Mark as selected visually
+          dropdown.querySelectorAll('.searchable-select-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          option.classList.add('selected');
+        }
+      });
+    });
+  }
 }
 
 // Handle logout
@@ -913,16 +1024,30 @@ function openResourceModal(resourceId = null) {
   const modal = document.getElementById('resource-modal');
   const title = document.getElementById('resource-modal-title');
   const form = document.getElementById('resource-form');
+  const searchInput = document.getElementById('resource-course-search');
+  const hiddenSelect = document.getElementById('resource-course-code');
   
   form.reset();
   form.querySelector('.form-error').textContent = '';
+  searchInput.value = '';
+  searchInput.removeAttribute('readonly');
+  searchInput.removeAttribute('disabled');
   
   if (resourceId) {
     title.textContent = 'Edit Resource';
     const resource = allResources.find(r => r._id === resourceId);
     if (resource) {
       document.getElementById('resource-id').value = resource._id;
-      document.getElementById('resource-course-code').value = resource.courseCode;
+      
+      // Set the course in both hidden select and search input
+      hiddenSelect.value = resource.courseCode;
+      const course = allCourses.find(c => c.courseCode === resource.courseCode);
+      if (course) {
+        searchInput.value = `${course.courseCode} - ${course.courseName}`;
+      } else {
+        searchInput.value = resource.courseCode;
+      }
+      
       document.getElementById('resource-title').value = resource.title;
       document.getElementById('resource-type').value = resource.type;
       document.getElementById('resource-description').value = resource.description || '';

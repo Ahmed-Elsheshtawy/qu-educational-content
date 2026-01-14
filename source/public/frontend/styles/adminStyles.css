@@ -725,6 +725,121 @@ body {
     margin-bottom: 1rem;
 }
 
+/* Searchable Select Dropdown */
+.searchable-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.searchable-select-input {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    padding-right: 2.5rem !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: 4px !important;
+    font-size: 1rem !important;
+    background-color: var(--white) !important;
+    cursor: text !important;
+    transition: border-color 0.3s ease !important;
+    pointer-events: auto !important;
+    z-index: 1 !important;
+    position: relative !important;
+}
+
+.searchable-select-input::placeholder {
+    color: #999;
+}
+
+.searchable-select-input:focus {
+    outline: none !important;
+    border-color: var(--primary-maroon) !important;
+}
+
+.searchable-select-wrapper::after {
+    content: '▼';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #666;
+    font-size: 0.7rem;
+    z-index: 2;
+}
+
+.searchable-select-hidden {
+    display: none !important;
+}
+
+.searchable-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: var(--white);
+    border: 2px solid var(--primary-maroon);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    margin-top: -2px;
+}
+
+.searchable-select-dropdown.show {
+    display: block;
+}
+
+.searchable-select-option {
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.searchable-select-option:last-child {
+    border-bottom: none;
+}
+
+.searchable-select-option:hover {
+    background-color: #f8f8f8;
+}
+
+.searchable-select-option.selected {
+    background-color: var(--primary-maroon);
+    color: var(--white);
+}
+
+.searchable-select-option .course-code {
+    font-weight: 600;
+    color: var(--primary-maroon);
+    font-size: 0.95rem;
+}
+
+.searchable-select-option.selected .course-code {
+    color: var(--white);
+}
+
+.searchable-select-option .course-name {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+.searchable-select-option.selected .course-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.searchable-select-no-results {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header-content {

@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFormHandler();
     setupFileInput();
     setupCascadingDropdowns();
+    setupSearchableCourseSelect();
     checkURLParameters();
 });
 
@@ -29,8 +30,9 @@ function setupCascadingDropdowns() {
 }
 
 // Handle college selection
-function handleCollegeChange() {
+function handleCollegeChange(preventSearchClear = false) {
     const selectedCollege = collegeSelect.value;
+    const searchInput = document.getElementById('submit-course-search');
     
     if (!selectedCollege) {
         // Reset department and course dropdowns
@@ -38,6 +40,13 @@ function handleCollegeChange() {
         departmentSelect.innerHTML = '<option value="">Select College First</option>';
         courseSelect.disabled = true;
         courseSelect.innerHTML = '<option value="">Select Department First</option>';
+        
+        // Update search input
+        if (searchInput && !preventSearchClear) {
+            searchInput.value = '';
+            searchInput.placeholder = 'Select college to filter courses...';
+            renderCourseOptions();
+        }
         return;
     }
     
@@ -59,16 +68,29 @@ function handleCollegeChange() {
     // Reset course dropdown
     courseSelect.disabled = true;
     courseSelect.innerHTML = '<option value="">Select Department First</option>';
+    
+    // Update search input and re-render courses
+    if (searchInput && !preventSearchClear) {
+        searchInput.value = '';
+        searchInput.placeholder = 'Type to search courses...';
+        renderCourseOptions();
+    }
 }
 
 // Handle department selection
-function handleDepartmentChange() {
+function handleDepartmentChange(preventSearchClear = false) {
     const selectedCollege = collegeSelect.value;
     const selectedDepartment = departmentSelect.value;
+    const searchInput = document.getElementById('submit-course-search');
     
     if (!selectedDepartment) {
         courseSelect.disabled = true;
         courseSelect.innerHTML = '<option value="">Select Department First</option>';
+        // Clear search and re-render courses
+        if (searchInput && !preventSearchClear) {
+            searchInput.value = '';
+            renderCourseOptions();
+        }
         return;
     }
     
@@ -86,6 +108,145 @@ function handleDepartmentChange() {
     
     courseSelect.innerHTML = '<option value="">Select Course</option>' + courseOptions;
     courseSelect.disabled = false;
+    
+    // Re-render searchable dropdown with filtered courses
+    if (searchInput && !preventSearchClear) {
+        searchInput.value = '';
+        renderCourseOptions();
+    }
+}
+
+// Setup searchable course select
+function setupSearchableCourseSelect() {
+    const searchInput = document.getElementById('submit-course-search');
+    const dropdown = document.getElementById('submit-course-dropdown');
+    const hiddenSelect = document.getElementById('submit-course-code');
+    
+    if (!searchInput || !dropdown || !hiddenSelect) {
+        console.warn('Searchable select elements not found');
+        return;
+    }
+    
+    // Show dropdown on focus or click
+    searchInput.addEventListener('focus', () => {
+        renderCourseOptions();
+        dropdown.classList.add('show');
+    });
+    
+    searchInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        renderCourseOptions();
+        dropdown.classList.add('show');
+    });
+    
+    // Filter on input
+    searchInput.addEventListener('input', () => {
+        renderCourseOptions(searchInput.value.toLowerCase());
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+}
+
+// Render course options in searchable dropdown
+function renderCourseOptions(searchTerm = '') {
+    const dropdown = document.getElementById('submit-course-dropdown');
+    const hiddenSelect = document.getElementById('submit-course-code');
+    const searchInput = document.getElementById('submit-course-search');
+    const selectedCollege = collegeSelect.value;
+    const selectedDepartment = departmentSelect.value;
+    
+    if (!dropdown || !hiddenSelect) return;
+    
+    // Filter courses based on college and department selection
+    let coursesToShow = allCourses;
+    
+    if (selectedCollege) {
+        coursesToShow = coursesToShow.filter(course => course.college === selectedCollege);
+    }
+    
+    if (selectedDepartment) {
+        coursesToShow = coursesToShow.filter(course => course.department === selectedDepartment);
+    }
+    
+    // Further filter based on search term
+    const filtered = coursesToShow.filter(course => {
+        if (!searchTerm) return true;
+        const courseText = `${course.courseCode} ${course.courseName}`.toLowerCase();
+        return courseText.includes(searchTerm);
+    });
+    
+    // Clear dropdown
+    dropdown.innerHTML = '';
+    
+    if (filtered.length === 0) {
+        const message = selectedCollege ? 'No courses found' : 'Select a college to see courses';
+        dropdown.innerHTML = `<div class="searchable-select-no-results">${message}</div>`;
+        return;
+    }
+    
+    // Sort courses by course code
+    filtered.sort((a, b) => a.courseCode.localeCompare(b.courseCode));
+    
+    // Render filtered options
+    filtered.forEach(course => {
+        const div = document.createElement('div');
+        div.className = 'searchable-select-option';
+        
+        div.innerHTML = `
+            <div class="course-code">${course.courseCode}</div>
+            <div class="course-name">${course.courseName}</div>
+        `;
+        
+        // Mark as selected if it's the current value
+        if (course.courseCode === hiddenSelect.value) {
+            div.classList.add('selected');
+        }
+        
+        // Handle selection
+        div.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Store the selected course info before any cascading changes
+            const selectedCourse = {
+                code: course.courseCode,
+                name: course.courseName,
+                college: course.college,
+                department: course.department
+            };
+            
+            // Update college if different (with flag to prevent search clear)
+            if (selectedCourse.college !== collegeSelect.value) {
+                collegeSelect.value = selectedCourse.college;
+                handleCollegeChange(true);
+            }
+            
+            // Update department if different (with flag to prevent search clear)
+            if (selectedCourse.department !== departmentSelect.value) {
+                departmentSelect.value = selectedCourse.department;
+                handleDepartmentChange(true);
+            }
+            
+            // Now set the course values
+            hiddenSelect.value = selectedCourse.code;
+            searchInput.value = `${selectedCourse.code} - ${selectedCourse.name}`;
+            
+            // Close the dropdown
+            dropdown.classList.remove('show');
+            
+            // Update visual state
+            dropdown.querySelectorAll('.searchable-select-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            div.classList.add('selected');
+        });
+        
+        dropdown.appendChild(div);
+    });
 }
 
 // Load available courses
