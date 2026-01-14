@@ -124,10 +124,17 @@ function setupFormHandler() {
 // Setup file input handler
 function setupFileInput() {
     fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Show file name
-            fileNameDisplay.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+        const files = e.target.files;
+        if (files.length > 0) {
+            // Calculate total size
+            const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+            
+            // Show file info
+            if (files.length === 1) {
+                fileNameDisplay.textContent = `Selected: ${files[0].name} (${formatFileSize(files[0].size)})`;
+            } else {
+                fileNameDisplay.textContent = `Selected: ${files.length} files (${formatFileSize(totalSize)} total) - Will be compressed to ZIP`;
+            }
             fileNameDisplay.style.display = 'block';
             
             // Clear URL input if file is selected
@@ -158,6 +165,42 @@ function formatFileSize(bytes) {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
+// Compress multiple files into a ZIP
+async function compressFilesToZip(files, progressCallback) {
+    try {
+        const zip = new JSZip();
+        const courseCode = document.getElementById('submit-course-code').value.trim().toUpperCase().replace(/\s+/g, '');
+        const timestamp = new Date().toISOString().slice(0, 10);
+        
+        // Add each file to the ZIP
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (progressCallback) {
+                progressCallback(`Adding ${file.name}... (${i + 1}/${files.length})`);
+            }
+            zip.file(file.name, file);
+        }
+        
+        // Generate ZIP file
+        if (progressCallback) {
+            progressCallback('Compressing files...');
+        }
+        
+        const zipBlob = await zip.generateAsync({
+            type: 'blob',
+            compression: 'DEFLATE',
+            compressionOptions: { level: 9 }
+        });
+        
+        // Create a File object from the Blob
+        const zipFileName = `${courseCode}_${timestamp}_resources.zip`;
+        return new File([zipBlob], zipFileName, { type: 'application/zip' });
+    } catch (error) {
+        console.error('Compression error:', error);
+        throw new Error('Failed to compress files: ' + error.message);
+    }
+}
+
 // Handle form submission
 async function handleSubmit(e) {
     e.preventDefault();
@@ -169,11 +212,11 @@ async function handleSubmit(e) {
     const tagsInput = document.getElementById('submit-tags').value;
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
-    const file = fileInput.files[0];
+    const files = fileInput.files;
     const fileUrl = document.getElementById('submit-file-url').value;
 
     // Validate that either file or URL is provided
-    if (!file && !fileUrl) {
+    if (files.length === 0 && !fileUrl) {
         showMessage('Please either upload a file or provide a file URL.', 'error');
         return;
     }
@@ -192,16 +235,34 @@ async function handleSubmit(e) {
     // Disable submit button
     const submitBtn = submitForm.querySelector('.btn-primary');
     submitBtn.disabled = true;
-    submitBtn.textContent = file ? 'Uploading...' : 'Submitting...';
+    submitBtn.textContent = files.length > 0 ? 'Uploading...' : 'Submitting...';
     
     try {
         let finalFileUrl, finalFileName, finalFileSize;
 
-        if (file) {
+        if (files.length > 0) {
+            let fileToUpload;
+            
+            // If multiple files selected, compress them to ZIP
+            if (files.length > 1) {
+                submitBtn.textContent = 'Compressing files...';
+                fileToUpload = await compressFilesToZip(
+                    Array.from(files), 
+                    (status) => { submitBtn.textContent = status; }
+                );
+            } else {
+                fileToUpload = files[0];
+            }
+            
+            // Check total size
+            if (fileToUpload.size > 75 * 1024 * 1024) {
+                throw new Error('File size exceeds 75MB limit. Please reduce file size.');
+            }
+            
             // Direct upload to R2 using presigned URL
-            finalFileUrl = await uploadFileDirectly(file, submitBtn);
-            finalFileName = file.name;
-            finalFileSize = file.size;
+            finalFileUrl = await uploadFileDirectly(fileToUpload, submitBtn);
+            finalFileName = fileToUpload.name;
+            finalFileSize = fileToUpload.size;
         } else {
             finalFileUrl = fileUrl;
             finalFileName = fileUrl.split('/').pop() || 'External File';

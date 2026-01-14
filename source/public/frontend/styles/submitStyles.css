@@ -123,13 +123,22 @@
 /* File Name Display */
 .file-name-display {
     margin-top: 0.5rem;
-    padding: 0.5rem;
-    background-color: #f0f9ff;
-    border: 1px solid #bfdbfe;
-    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #bfdbfe;
+    border-radius: 8px;
     color: #1e40af;
     font-size: 0.9rem;
+    font-weight: 500;
     display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-name-display::before {
+    content: '📁';
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
 }
 
 /* Form Actions */
