@@ -564,14 +564,38 @@ function formatDate(dateString) {
 
 // Approve submission
 window.approveSubmission = async function(resourceId) {
+  // Find the button that was clicked
+  const button = event.target;
+  const originalText = button.innerHTML;
+  
+  // Disable button and show loading state
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner"></span> Approving...';
+  button.classList.add('loading');
+  
   try {
     await approveResource(resourceId);
     await syncResourceCounts();
+    
+    // Show success state
+    button.innerHTML = '✓ Approved';
+    button.classList.remove('loading');
+    button.classList.add('success-state');
+    
     showSuccessMessage('Resource approved successfully!');
-    await loadDashboardData();
+    
+    // Reload data after a short delay to show success state
+    setTimeout(async () => {
+      await loadDashboardData();
+    }, 800);
   } catch (error) {
     console.error('Error approving submission:', error);
     showErrorMessage(error.message || 'Failed to approve submission');
+    
+    // Reset button on error
+    button.disabled = false;
+    button.innerHTML = originalText;
+    button.classList.remove('loading');
   }
 };
 
@@ -635,13 +659,49 @@ async function handlePendingEditSubmit(e) {
     year: parseInt(document.getElementById('pending-year').value)
   };
 
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.innerHTML;
+  
+  // Disable button and show loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
+  submitBtn.classList.add('loading');
+
   try {
     await updateResource(resourceId, resourceData);
+    
+    // Show success state
+    submitBtn.innerHTML = '✓ Saved';
+    submitBtn.classList.remove('loading');
+    submitBtn.classList.add('success-state');
+    
     showSuccessMessage('Pending submission updated successfully');
-    await loadPendingResources();
+    
+    setTimeout(async () => {
+      await loadPendingResources();
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('success-state');
+      submitBtn.disabled = false;
+    }, 800);
   } catch (error) {
-    formError.textContent = error.message || 'Failed to update submission. Please try again.';
-    console.error('Pending edit error:', error);
+    // Check if it's a "not modified" error
+    if (error.message && error.message.includes('not modified')) {
+      // Show info message
+      showSuccessMessage('No changes were made to the submission');
+      setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }, 800);
+    } else {
+      formError.textContent = error.message || 'Failed to update submission. Please try again.';
+      console.error('Pending edit error:', error);
+      
+      // Reset button on error
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('loading');
+    }
   }
 }
 
@@ -650,15 +710,38 @@ async function handlePendingApprove() {
   const resourceId = document.getElementById('pending-resource-id').value;
   if (!resourceId) return;
 
+  const button = document.getElementById('pending-approve-btn');
+  const originalText = button.innerHTML;
+  
+  // Disable button and show loading state
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner"></span> Approving...';
+  button.classList.add('loading');
+
   try {
     await approveResource(resourceId);
     await syncResourceCounts();
-    closeAllModals();
+    
+    // Show success state
+    button.innerHTML = '✓ Approved';
+    button.classList.remove('loading');
+    button.classList.add('success-state');
+    
     showSuccessMessage('Resource approved successfully!');
-    await loadDashboardData();
+    
+    // Close modal and reload after delay
+    setTimeout(async () => {
+      closeAllModals();
+      await loadDashboardData();
+    }, 800);
   } catch (error) {
     console.error('Error approving submission:', error);
     showErrorMessage(error.message || 'Failed to approve submission');
+    
+    // Reset button on error
+    button.disabled = false;
+    button.innerHTML = originalText;
+    button.classList.remove('loading');
   }
 }
 
@@ -759,18 +842,55 @@ async function handleCourseSubmit(e) {
     }
   }
 
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.innerHTML;
+  
+  // Disable button and show loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
+  submitBtn.classList.add('loading');
+
   try {
     if (courseId) {
       await updateCourse(courseId, courseData);
+      showSuccessMessage('Course updated successfully');
     } else {
       await createCourse(courseData);
+      showSuccessMessage('Course created successfully');
     }
 
-    closeAllModals();
-    await loadCourses();
+    // Show success state
+    submitBtn.innerHTML = '✓ Saved';
+    submitBtn.classList.remove('loading');
+    submitBtn.classList.add('success-state');
+    
+    setTimeout(async () => {
+      closeAllModals();
+      await loadCourses();
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('success-state');
+      submitBtn.disabled = false;
+    }, 800);
   } catch (error) {
-    formError.textContent = error.message || 'Failed to save course. Please try again.';
-    console.error('Course submit error:', error);
+    // Check if it's a "not modified" error
+    if (error.message && error.message.includes('not modified')) {
+      // Show info message and close modal
+      showSuccessMessage('No changes were made to the course');
+      setTimeout(() => {
+        closeAllModals();
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }, 800);
+    } else {
+      formError.textContent = error.message || 'Failed to save course. Please try again.';
+      console.error('Course submit error:', error);
+      
+      // Reset button on error
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('loading');
+    }
   }
 }
 
@@ -842,20 +962,58 @@ async function handleResourceSubmit(e) {
     tags
   };
 
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.innerHTML;
+  
+  // Disable button and show loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
+  submitBtn.classList.add('loading');
+
   try {
     if (resourceId) {
       await updateResource(resourceId, resourceData);
+      showSuccessMessage('Resource updated successfully');
     } else {
       await createResource(resourceData);
+      showSuccessMessage('Resource created successfully');
     }
 
     await syncResourceCounts();
-    closeAllModals();
-    await loadResources();
-    await loadCourses(); // Refresh to update resource counts
+    
+    // Show success state
+    submitBtn.innerHTML = '✓ Saved';
+    submitBtn.classList.remove('loading');
+    submitBtn.classList.add('success-state');
+    
+    setTimeout(async () => {
+      closeAllModals();
+      await loadResources();
+      await loadCourses();
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('success-state');
+      submitBtn.disabled = false;
+    }, 800);
   } catch (error) {
-    formError.textContent = error.message || 'Failed to save resource. Please try again.';
-    console.error('Resource submit error:', error);
+    // Check if it's a "not modified" error
+    if (error.message && error.message.includes('not modified')) {
+      // Show info message and close modal
+      showSuccessMessage('No changes were made to the resource');
+      setTimeout(() => {
+        closeAllModals();
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }, 800);
+    } else {
+      formError.textContent = error.message || 'Failed to save resource. Please try again.';
+      console.error('Resource submit error:', error);
+      
+      // Reset button on error
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      submitBtn.classList.remove('loading');
+    }
   }
 }
 
@@ -876,31 +1034,81 @@ window.deleteResource = deleteResource;
 async function handleDelete() {
   if (!deleteTarget) return;
 
+  const button = document.getElementById('confirm-delete-btn');
+  const originalText = button.innerHTML;
+  
+  // Disable button and show loading state
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner"></span> Deleting...';
+  button.classList.add('loading');
+
   try {
     if (deleteTarget.type === 'course') {
       await apiDeleteCourse(deleteTarget.id);
       await syncResourceCounts();
-      closeAllModals();
+      
+      // Show success state
+      button.innerHTML = '✓ Deleted';
+      button.classList.remove('loading');
+      button.classList.add('success-state');
+      
       showSuccessMessage('Course deleted successfully');
-      await loadCourses();
-      await loadResources(); // Refresh resources as they might be deleted
+      
+      setTimeout(async () => {
+        closeAllModals();
+        await loadCourses();
+        await loadResources();
+        button.innerHTML = originalText;
+        button.classList.remove('success-state');
+        button.disabled = false;
+      }, 800);
+      
     } else if (deleteTarget.type === 'pending') {
       await rejectResource(deleteTarget.id);
       await syncResourceCounts();
-      closeAllModals();
+      
+      // Show success state
+      button.innerHTML = '✓ Rejected';
+      button.classList.remove('loading');
+      button.classList.add('success-state');
+      
       showSuccessMessage('Submission rejected successfully');
-      await loadDashboardData();
+      
+      setTimeout(async () => {
+        closeAllModals();
+        await loadDashboardData();
+        button.innerHTML = originalText;
+        button.classList.remove('success-state');
+        button.disabled = false;
+      }, 800);
+      
     } else {
       await apiDeleteResource(deleteTarget.id);
       await syncResourceCounts();
-      closeAllModals();
+      
+      // Show success state
+      button.innerHTML = '✓ Deleted';
+      button.classList.remove('loading');
+      button.classList.add('success-state');
+      
       showSuccessMessage('Resource deleted successfully');
-      await loadResources();
-      await loadCourses(); // Refresh to update resource counts
+      
+      setTimeout(async () => {
+        closeAllModals();
+        await loadResources();
+        await loadCourses();
+        button.innerHTML = originalText;
+        button.classList.remove('success-state');
+        button.disabled = false;
+      }, 800);
     }
   } catch (error) {
-    closeAllModals();
     showErrorMessage(error.message || 'Failed to delete item. Please try again.');
+    
+    // Reset button on error
+    button.disabled = false;
+    button.innerHTML = originalText;
+    button.classList.remove('loading');
     console.error('Delete error:', error);
   }
 
