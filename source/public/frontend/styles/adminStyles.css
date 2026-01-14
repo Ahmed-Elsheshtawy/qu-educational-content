@@ -280,6 +280,52 @@ body {
     display: block;
 }
 
+/* Sub-tabs */
+.sub-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sub-tab-btn {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.sub-tab-btn:hover {
+    color: var(--primary-maroon);
+}
+
+.sub-tab-btn.active {
+    color: var(--primary-maroon);
+}
+
+.sub-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary-maroon);
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+}
+
 /* Section Header */
 .section-header {
     display: flex;

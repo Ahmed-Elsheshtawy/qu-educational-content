@@ -18,13 +18,13 @@
     <main id="admin-dashboard" class="admin-dashboard">
         <!-- Navigation Tabs -->
         <div class="admin-tabs">
-            <button class="tab-btn active" data-tab="courses">Manage Courses</button>
+            <button class="tab-btn" data-tab="courses">Manage Courses</button>
             <button class="tab-btn" data-tab="resources">Manage Resources</button>
             <button class="tab-btn" data-tab="pending">Pending Submissions</button>
         </div>
 
         <!-- Courses Management Tab -->
-        <section id="courses-tab" class="tab-content active">
+        <section id="courses-tab" class="tab-content">
             <div class="section-header">
                 <h2>Courses Management</h2>
                 <button id="add-course-btn" class="btn btn-primary">Add New Course</button>
@@ -120,44 +120,89 @@
                 <span class="badge" id="pending-count">0</span>
             </div>
 
-            <div class="filters-section">
-                <div class="filter-group">
-                    <label for="pending-college-filter">College:</label>
-                    <select id="pending-college-filter" class="admin-filter">
-                        <option value="">All Colleges</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="pending-department-filter">Department:</label>
-                    <select id="pending-department-filter" class="admin-filter" disabled>
-                        <option value="">Select a college first</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="pending-course-filter">Course:</label>
-                    <select id="pending-course-filter" class="admin-filter" disabled>
-                        <option value="">Select a department first</option>
-                    </select>
-                </div>
-                <button id="pending-reset-filter" class="btn btn-secondary">Reset Filters</button>
+            <!-- Sub-tabs for Pending Courses and Pending Resources -->
+            <div class="sub-tabs">
+                <button class="sub-tab-btn active" data-subtab="pending-courses">Pending Courses</button>
+                <button class="sub-tab-btn" data-subtab="pending-resources">Pending Resources</button>
             </div>
 
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Course Code</th>
-                            <th>Type</th>
-                            <th>Year</th>
-                            <th>Submitted</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pending-table-body">
-                        <!-- Pending resources will be populated here -->
-                    </tbody>
-                </table>
+            <!-- Pending Courses Sub-section -->
+            <div id="pending-courses-section" class="sub-tab-content active">
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label for="pending-courses-college-filter">College:</label>
+                        <select id="pending-courses-college-filter" class="admin-filter">
+                            <option value="">All Colleges</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="pending-courses-department-filter">Department:</label>
+                        <select id="pending-courses-department-filter" class="admin-filter" disabled>
+                            <option value="">Select a college first</option>
+                        </select>
+                    </div>
+                    <button id="pending-courses-reset-filter" class="btn btn-secondary">Reset Filters</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>College</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-courses-table-body">
+                            <!-- Pending courses will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pending Resources Sub-section -->
+            <div id="pending-resources-section" class="sub-tab-content">
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label for="pending-college-filter">College:</label>
+                        <select id="pending-college-filter" class="admin-filter">
+                            <option value="">All Colleges</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="pending-department-filter">Department:</label>
+                        <select id="pending-department-filter" class="admin-filter" disabled>
+                            <option value="">Select a college first</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="pending-course-filter">Course:</label>
+                        <select id="pending-course-filter" class="admin-filter" disabled>
+                            <option value="">Select a department first</option>
+                        </select>
+                    </div>
+                    <button id="pending-reset-filter" class="btn btn-secondary">Reset Filters</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Course Code</th>
+                                <th>Type</th>
+                                <th>Year</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-table-body">
+                            <!-- Pending resources will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>

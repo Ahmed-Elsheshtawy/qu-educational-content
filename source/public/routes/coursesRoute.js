@@ -36,17 +36,18 @@ coursesRouter.post('/request', async (req, res) => {
       });
     }
 
-    // Add the course directly to the database
+    // Add the course with pending status
     const course = await addCourse({
       courseCode,
       courseName,
       college,
       department,
-      resourceCount: 0
+      resourceCount: 0,
+      status: 'pending'
     });
 
     res.status(201).json({ 
-      message: 'Course added successfully!', 
+      message: 'Your course request is under review. An admin will approve it soon.', 
       course 
     });
   } catch (error) {

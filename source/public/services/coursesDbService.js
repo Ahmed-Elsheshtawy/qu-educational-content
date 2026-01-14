@@ -1,10 +1,12 @@
 import { getCoursesCollection } from './mongoService.js';
 import { ObjectId } from 'mongodb';
 
-// Fetch all courses
+// Fetch all courses (only approved)
 export async function fetchAllCourses() {
   const coursesCollection = await getCoursesCollection();
-  return await coursesCollection.find({}).toArray();
+  return await coursesCollection.find({ 
+    $or: [{ status: 'approved' }, { status: { $exists: false } }] 
+  }).toArray();
 }
 
 // Fetch a single course by ID
@@ -42,7 +44,8 @@ export async function addCourse(courseData) {
     semester: courseData.semester || null,
     professor: courseData.professor || null,
     description: courseData.description || null,
-    resourceCount: 0
+    resourceCount: 0,
+    status: courseData.status || 'pending'
   };
   const result = await coursesCollection.insertOne(course);
   return { ...course, _id: result.insertedId };
@@ -154,5 +157,29 @@ export async function getUniqueDepartments() {
 export async function getUniqueSemesters() {
   const coursesCollection = await getCoursesCollection();
   return await coursesCollection.distinct('semester');
+}
+
+// Fetch pending courses (for admin)
+export async function fetchPendingCourses() {
+  const coursesCollection = await getCoursesCollection();
+  return await coursesCollection.find({ status: 'pending' }).toArray();
+}
+
+// Approve course (change status to approved)
+export async function approveCourse(courseId) {
+  const coursesCollection = await getCoursesCollection();
+  const result = await coursesCollection.findOneAndUpdate(
+    { _id: new ObjectId(courseId) },
+    { $set: { status: 'approved' } },
+    { returnDocument: 'after' }
+  );
+  return result.value || result;
+}
+
+// Reject course (delete it permanently)
+export async function rejectCourse(courseId) {
+  const coursesCollection = await getCoursesCollection();
+  const result = await coursesCollection.deleteOne({ _id: new ObjectId(courseId) });
+  return result.deletedCount > 0;
 }
 

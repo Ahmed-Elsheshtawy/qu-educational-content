@@ -11,6 +11,9 @@ import {
     getPendingResources,
     approveResource,
     rejectResource,
+    getPendingCourses,
+    approveCourse,
+    rejectCourse,
     syncResourceCounts
 } from '../api/adminApi.js';
 
@@ -18,44 +21,80 @@ import {
 let allCourses = [];
 let allResources = [];
 let pendingResources = [];
+let pendingCourses = [];
 let currentEditCourse = null;
 let currentEditResource = null;
 let deleteTarget = null;
 
-// DOM elements
-const logoutBtn = document.getElementById('logout-btn');
+console.log('📋 Declaring DOM element variables...');
 
-// Tabs
-const tabButtons = document.querySelectorAll('.tab-btn');
-const coursesTab = document.getElementById('courses-tab');
-const resourcesTab = document.getElementById('resources-tab');
-const pendingTab = document.getElementById('pending-tab');
-
-// Modals
-const courseModal = document.getElementById('course-modal');
-const resourceModal = document.getElementById('resource-modal');
-const deleteModal = document.getElementById('delete-modal');
-const pendingEditModal = document.getElementById('pending-edit-modal');
-
-// Close buttons
-const closeButtons = document.querySelectorAll('.close-btn');
-const cancelButtons = document.querySelectorAll('.cancel-btn');
+// DOM elements - will be initialized in DOMContentLoaded
+let logoutBtn;
+let tabButtons;
+let coursesTab;
+let resourcesTab;
+let pendingTab;
+let courseModal;
+let resourceModal;
+let deleteModal;
+let pendingEditModal;
+let closeButtons;
+let cancelButtons;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize DOM elements
+  logoutBtn = document.getElementById('logout-btn');
+  tabButtons = document.querySelectorAll('.tab-btn');
+  coursesTab = document.getElementById('courses-tab');
+  resourcesTab = document.getElementById('resources-tab');
+  pendingTab = document.getElementById('pending-tab');
+  courseModal = document.getElementById('course-modal');
+  resourceModal = document.getElementById('resource-modal');
+  deleteModal = document.getElementById('delete-modal');
+  pendingEditModal = document.getElementById('pending-edit-modal');
+  closeButtons = document.querySelectorAll('.close-btn');
+  cancelButtons = document.querySelectorAll('.cancel-btn');
+  
   setupEventListeners();
   loadDashboardData();
+  
+  // Initialize tab from URL
+  const initialTab = getTabFromURL();
+  if (initialTab) {
+    switchTab(initialTab, false); // false = don't update URL since we're loading from it
+  }
+  
+  // Handle browser back/forward buttons
+  window.addEventListener('hashchange', () => {
+    const tab = getTabFromURL();
+    if (tab) {
+      switchTab(tab, false);
+    }
+  });
 });
 
 // Setup event listeners
 function setupEventListeners() {
   // Logout
-  logoutBtn.addEventListener('click', handleLogout);
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+  }
 
   // Tabs
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
+  if (tabButtons.length > 0) {
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab, true)); // true = update URL
+    });
+  }
+
+  // Sub-tabs for pending section
+  const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+  if (subTabButtons.length > 0) {
+    subTabButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchSubTab(btn.dataset.subtab));
+    });
+  }
 
   // Course actions
   document.getElementById('add-course-btn').addEventListener('click', () => openCourseModal());
@@ -223,7 +262,8 @@ async function loadDashboardData() {
   await Promise.all([
     loadCourses(),
     loadResources(),
-    loadPendingResources()
+    loadPendingResources(),
+    loadPendingCourses()
   ]);
 }
 
@@ -660,12 +700,6 @@ function renderPendingTable() {
   `).join('');
 }
 
-// Update pending count badge
-function updatePendingCount() {
-  const badge = document.getElementById('pending-count');
-  badge.textContent = pendingResources.length;
-}
-
 // Format date
 function formatDate(dateString) {
   if (!dateString) return 'N/A';
@@ -870,21 +904,184 @@ async function handlePendingReject() {
   document.getElementById('delete-modal').classList.add('active');
 }
 
+// ==================== PENDING COURSES FUNCTIONS ====================
+
+// Load pending courses
+async function loadPendingCourses() {
+  try {
+    const data = await getPendingCourses();
+    pendingCourses = Array.isArray(data) ? data : (data.courses || []);
+    renderPendingCoursesTable();
+    updatePendingCount();
+  } catch (error) {
+    console.error('Failed to load pending courses:', error);
+    pendingCourses = [];
+    renderPendingCoursesTable();
+    updatePendingCount();
+  }
+}
+
+// Render pending courses table
+function renderPendingCoursesTable() {
+  const tbody = document.getElementById('pending-courses-table-body');
+  
+  if (pendingCourses.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No pending course requests</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = pendingCourses.map(course => `
+    <tr>
+      <td>${course.courseCode}</td>
+      <td>${course.courseName}</td>
+      <td>${course.college || 'N/A'}</td>
+      <td>${course.department || 'N/A'}</td>
+      <td>
+        <div class="table-actions">
+          <button class="btn-icon btn-edit" onclick="editPendingCourse('${course._id}')">Edit</button>
+          <button class="btn-icon btn-success" onclick="approvePendingCourse('${course._id}')">Approve</button>
+          <button class="btn-icon btn-delete" onclick="rejectPendingCourse('${course._id}')">Reject</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Update pending count badge (includes both courses and resources)
+function updatePendingCount() {
+  const badge = document.getElementById('pending-count');
+  const totalPending = pendingResources.length + pendingCourses.length;
+  badge.textContent = totalPending;
+}
+
+// Edit pending course - opens the course modal with data
+window.editPendingCourse = function(courseId) {
+  const course = pendingCourses.find(c => c._id === courseId);
+  if (!course) return;
+
+  // Use the existing course modal
+  const modal = document.getElementById('course-modal');
+  const title = document.getElementById('course-modal-title');
+  const form = document.getElementById('course-form');
+  
+  form.reset();
+  form.querySelector('.form-error').textContent = '';
+  
+  title.textContent = 'Edit Pending Course';
+  document.getElementById('course-id').value = course._id;
+  document.getElementById('course-code').value = course.courseCode;
+  document.getElementById('course-name').value = course.courseName;
+  document.getElementById('course-college').value = course.college || '';
+  document.getElementById('course-department').value = course.department || '';
+  
+  // Set a flag to know we're editing a pending course
+  currentEditCourse = courseId;
+  form.dataset.isPending = 'true';
+  
+  modal.classList.add('active');
+};
+
+// Approve pending course
+window.approvePendingCourse = async function(courseId) {
+  const button = event.target;
+  const originalText = button.innerHTML;
+  
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner"></span> Approving...';
+  button.classList.add('loading');
+  
+  try {
+    await approveCourse(courseId);
+    
+    button.innerHTML = '✓ Approved';
+    button.classList.remove('loading');
+    button.classList.add('success-state');
+    
+    showSuccessMessage('Course approved successfully!');
+    
+    setTimeout(async () => {
+      await loadDashboardData();
+    }, 800);
+  } catch (error) {
+    console.error('Error approving course:', error);
+    showErrorMessage(error.message || 'Failed to approve course');
+    
+    button.disabled = false;
+    button.innerHTML = originalText;
+    button.classList.remove('loading');
+  }
+};
+
+// Reject pending course
+window.rejectPendingCourse = async function(courseId) {
+  const course = pendingCourses.find(c => c._id === courseId);
+  if (!course) return;
+
+  deleteTarget = { type: 'pending-course', id: courseId };
+  document.getElementById('delete-message').textContent = 
+    `Are you sure you want to reject course "${course.courseCode} - ${course.courseName}"? This will permanently delete it.`;
+  document.getElementById('delete-modal').classList.add('active');
+};
+
+// Get tab name from URL hash
+function getTabFromURL() {
+  const hash = window.location.hash.substring(1); // Remove the '#'
+  const validTabs = ['courses', 'resources', 'pending'];
+  return validTabs.includes(hash) ? hash : 'courses'; // Default to courses
+}
+
 // Switch tabs
-function switchTab(tabName) {
-  tabButtons.forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-  
-  coursesTab.classList.remove('active');
-  resourcesTab.classList.remove('active');
-  pendingTab.classList.remove('active');
-  
-  if (tabName === 'courses') {
-    coursesTab.classList.add('active');
-  } else if (tabName === 'resources') {
-    resourcesTab.classList.add('active');
-  } else if (tabName === 'pending') {
-    pendingTab.classList.add('active');
+function switchTab(tabName, updateURL = true) {
+  try {
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active');
+    }
+    
+    coursesTab.classList.remove('active');
+    resourcesTab.classList.remove('active');
+    pendingTab.classList.remove('active');
+    
+    if (tabName === 'courses') {
+      coursesTab.classList.add('active');
+    } else if (tabName === 'resources') {
+      resourcesTab.classList.add('active');
+    } else if (tabName === 'pending') {
+      pendingTab.classList.add('active');
+    }
+    
+    // Update URL hash if requested
+    if (updateURL && window.location.hash !== '#' + tabName) {
+      window.location.hash = tabName;
+    }
+  } catch (error) {
+    console.error('Error switching tab:', error);
+  }
+}
+
+// Switch sub-tabs (for pending section)
+function switchSubTab(subTabName) {
+  try {
+    const subTabButtons = document.querySelectorAll('.sub-tab-btn');
+    const subTabContents = document.querySelectorAll('.sub-tab-content');
+    
+    subTabButtons.forEach(btn => btn.classList.remove('active'));
+    
+    const activeButton = document.querySelector(`[data-subtab="${subTabName}"]`);
+    if (activeButton) {
+      activeButton.classList.add('active');
+    }
+    
+    subTabContents.forEach(content => content.classList.remove('active'));
+    
+    const activeContent = document.getElementById(`${subTabName}-section`);
+    if (activeContent) {
+      activeContent.classList.add('active');
+    }
+  } catch (error) {
+    console.error('Error switching sub-tab:', error);
   }
 }
 
@@ -924,6 +1121,8 @@ async function handleCourseSubmit(e) {
   const formError = e.target.querySelector('.form-error');
   formError.textContent = '';
 
+  const form = e.target;
+  const isPending = form.dataset.isPending === 'true';
   const courseId = document.getElementById('course-id').value;
   const courseData = {
     courseCode: document.getElementById('course-code').value,
@@ -964,7 +1163,7 @@ async function handleCourseSubmit(e) {
   try {
     if (courseId) {
       await updateCourse(courseId, courseData);
-      showSuccessMessage('Course updated successfully');
+      showSuccessMessage(isPending ? 'Pending course updated successfully' : 'Course updated successfully');
     } else {
       await createCourse(courseData);
       showSuccessMessage('Course created successfully');
@@ -977,7 +1176,13 @@ async function handleCourseSubmit(e) {
     
     setTimeout(async () => {
       closeAllModals();
-      await loadCourses();
+      // If it was a pending course, reload both courses and pending courses
+      if (isPending) {
+        await loadDashboardData();
+        delete form.dataset.isPending;
+      } else {
+        await loadCourses();
+      }
       submitBtn.innerHTML = originalText;
       submitBtn.classList.remove('success-state');
       submitBtn.disabled = false;
@@ -989,6 +1194,7 @@ async function handleCourseSubmit(e) {
       showSuccessMessage('No changes were made to the course');
       setTimeout(() => {
         closeAllModals();
+        delete form.dataset.isPending;
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
         submitBtn.classList.remove('loading');
@@ -1198,6 +1404,24 @@ async function handleDelete() {
       button.classList.add('success-state');
       
       showSuccessMessage('Submission rejected successfully');
+      
+      setTimeout(async () => {
+        closeAllModals();
+        await loadDashboardData();
+        button.innerHTML = originalText;
+        button.classList.remove('success-state');
+        button.disabled = false;
+      }, 800);
+      
+    } else if (deleteTarget.type === 'pending-course') {
+      await rejectCourse(deleteTarget.id);
+      
+      // Show success state
+      button.innerHTML = '✓ Rejected';
+      button.classList.remove('loading');
+      button.classList.add('success-state');
+      
+      showSuccessMessage('Course request rejected successfully');
       
       setTimeout(async () => {
         closeAllModals();

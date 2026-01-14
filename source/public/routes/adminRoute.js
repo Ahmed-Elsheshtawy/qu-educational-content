@@ -6,7 +6,10 @@ import {
   incrementResourceCount,
   incrementResourceCountByCode,
   decrementResourceCount,
-  syncResourceCounts
+  syncResourceCounts,
+  fetchPendingCourses,
+  approveCourse,
+  rejectCourse
 } from '../services/coursesDbService.js';
 import {
   addResource,
@@ -169,6 +172,44 @@ adminRouter.delete('/resources/:id/tags', async (req, res) => {
 });
 
 // ==================== PENDING SUBMISSIONS ROUTES ====================
+
+// GET /api/admin/courses/pending - Get all pending course requests
+adminRouter.get('/courses/pending', async (req, res) => {
+  try {
+    const pendingCourses = await fetchPendingCourses();
+    res.json(pendingCourses);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch pending courses', message: error.message });
+  }
+});
+
+// PUT /api/admin/courses/:id/approve - Approve a pending course
+adminRouter.put('/courses/:id/approve', async (req, res) => {
+  try {
+    const course = await approveCourse(req.params.id);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    res.json({ message: 'Course approved successfully', course });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to approve course', message: error.message });
+  }
+});
+
+// DELETE /api/admin/courses/:id/reject - Reject a pending course
+adminRouter.delete('/courses/:id/reject', async (req, res) => {
+  try {
+    const success = await rejectCourse(req.params.id);
+    if (!success) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    res.json({ message: 'Course rejected successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to reject course', message: error.message });
+  }
+});
 
 // GET /api/admin/resources/pending - Get all pending submissions
 adminRouter.get('/resources/pending', async (req, res) => {

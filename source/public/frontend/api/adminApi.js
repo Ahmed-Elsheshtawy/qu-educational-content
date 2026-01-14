@@ -159,6 +159,41 @@ export async function rejectResource(resourceId) {
     return result;
 }
 
+// Pending Courses
+export async function getPendingCourses() {
+    const response = await fetch(`${API_BASE}/admin/courses/pending`);
+    if (!response.ok) throw new Error('Failed to fetch pending courses');
+    return response.json();
+}
+
+export async function approveCourse(courseId) {
+    const response = await fetch(`${API_BASE}/admin/courses/${courseId}/approve`, {
+        method: 'PUT'
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(result.error || 'Failed to approve course');
+    }
+    
+    return result;
+}
+
+export async function rejectCourse(courseId) {
+    const response = await fetch(`${API_BASE}/admin/courses/${courseId}/reject`, {
+        method: 'DELETE'
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(result.error || 'Failed to reject course');
+    }
+    
+    return result;
+}
+
 export async function syncResourceCounts() {
     const response = await fetch(`${API_BASE}/admin/courses/sync-counts`, {
         method: 'POST'

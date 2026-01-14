@@ -219,8 +219,7 @@ async function handleSubmit(e) {
         
         // Show success message
         showMessage(
-            'Success! The course has been added to the database and is now available. ' +
-            'You will be redirected to the home page...',
+            data.message || 'Your course request is under review. An admin will approve it soon.',
             'success'
         );
         
