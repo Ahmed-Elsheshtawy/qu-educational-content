@@ -591,6 +591,15 @@ function prefillFromURL() {
     courseSelect.disabled = false;
     courseSelect.value = courseCode;
     
+    // Update the searchable input field
+    const searchInput = document.getElementById('submit-course-search');
+    if (searchInput) {
+        const selectedCourse = filteredCourses.find(course => course.courseCode === courseCode);
+        if (selectedCourse) {
+            searchInput.value = `${selectedCourse.courseCode} - ${selectedCourse.courseName}`;
+        }
+    }
+    
     // Scroll to form
     submitForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
