@@ -242,7 +242,34 @@ body {
     background: var(--accent-gold);
     border-radius: 2px 2px 0 0;
 }
+.nav-support {
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(196, 169, 98, 0.15);
+    border: 1px solid rgba(196, 169, 98, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.5rem;
+}
 
+.nav-support:hover {
+    background: var(--accent-gold);
+    color: var(--primary-maroon);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 169, 98, 0.4);
+    border-color: var(--accent-gold);
+}
+
+.kofi-icon-nav {
+    width: 18px;
+    height: 18px;
+}
 .nav-link-cta {
     color: var(--primary-maroon);
     background: linear-gradient(135deg, var(--accent-gold) 0%, #D4B972 100%);
@@ -734,6 +761,91 @@ body {
     font-weight: 600;
 }
 
+/* About Support Section */
+.about-support {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(196, 169, 98, 0.1) 0%, rgba(196, 169, 98, 0.05) 100%);
+    border-radius: 12px;
+    border: 2px solid var(--accent-gold);
+    box-shadow: 0 4px 16px rgba(196, 169, 98, 0.15);
+}
+
+.about-support h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-maroon);
+    margin-bottom: 1rem;
+}
+
+.about-support h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 1.5rem;
+    background: var(--accent-gold);
+    margin-right: 0.75rem;
+    border-radius: 2px;
+    vertical-align: middle;
+}
+
+.about-support p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.support-costs {
+    list-style: none;
+    padding: 1rem 0;
+    margin: 1rem 0;
+}
+
+.support-costs li {
+    padding: 0.5rem 0;
+    padding-left: 2rem;
+    position: relative;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.support-costs li::before {
+    content: '•';
+    position: absolute;
+    left: 0.5rem;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.support-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #D4B972 100%);
+    color: var(--primary-maroon);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(196, 169, 98, 0.3);
+    margin-top: 1rem;
+}
+
+.support-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(196, 169, 98, 0.4);
+    background: linear-gradient(135deg, #D4B972 0%, var(--accent-gold) 100%);
+}
+
+.kofi-icon-about {
+    width: 24px;
+    height: 24px;
+}
+
 /* About Contact Section */
 .about-contact {
     margin-top: 3rem;
@@ -792,10 +904,49 @@ body {
     margin-top: 4rem;
 }
 
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 .footer-text {
-    text-align: center;
     font-size: 0.9rem;
     opacity: 0.9;
+}
+
+.footer-support {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.footer-support:hover {
+    background-color: var(--accent-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.kofi-icon {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 600px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
 }
 
 /* Responsive Design */
