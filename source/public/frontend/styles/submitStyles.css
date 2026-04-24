@@ -279,6 +279,118 @@
     }
 }
 
+@media (max-width: 480px) {
+    .submit-section {
+        padding: 1.5rem 0;
+        min-height: calc(100vh - 150px);
+    }
+
+    .submit-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .page-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .submit-container {
+        gap: 2rem;
+    }
+
+    .submit-form {
+        padding: 1.25rem;
+        border-radius: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.625rem 0.75rem;
+        font-size: 16px;
+        border-radius: 6px;
+    }
+
+    .form-group textarea {
+        min-height: 80px;
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+    }
+
+    .form-divider {
+        margin: 1.25rem 0;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .submit-guidelines {
+        padding: 1.25rem;
+    }
+
+    .submit-guidelines h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .submit-guidelines li {
+        padding: 0.4rem 0;
+        padding-left: 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .file-name-display {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.75rem;
+    }
+
+    .searchable-select-wrapper::after {
+        right: 0.75rem;
+    }
+
+    .searchable-select-option {
+        padding: 0.85rem 1rem;
+    }
+
+    .searchable-select-option .course-code {
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .searchable-select-option .course-name {
+        font-size: 0.8rem;
+    }
+
+    .searchable-select-dropdown {
+        max-height: 250px;
+    }
+}
+
 /* Searchable Select Dropdown */
 .searchable-select-wrapper {
     position: relative;
