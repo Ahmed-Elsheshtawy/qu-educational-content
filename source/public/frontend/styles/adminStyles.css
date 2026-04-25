@@ -166,6 +166,8 @@ body {
     color: var(--text-dark);
     line-height: 1.6;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header */
@@ -263,6 +265,8 @@ body {
     margin: 2.5rem auto;
     padding: 0 2rem;
     animation: fadeInUp 0.5s ease;
+    flex: 1;
+    width: 100%;
 }
 
 @keyframes fadeInUp {
