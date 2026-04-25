@@ -118,11 +118,6 @@
 
         <!-- Pending Submissions Tab -->
         <section id="pending-tab" class="tab-content">
-            <div class="section-header">
-                <h2>Pending Submissions</h2>
-                <span class="badge" id="pending-count">0</span>
-            </div>
-
             <!-- Sub-tabs for Pending Courses and Pending Resources -->
             <div class="sub-tabs">
                 <button class="sub-tab-btn active" data-subtab="pending-courses">Pending Courses</button>
@@ -232,12 +227,16 @@
 
                 <div class="form-group">
                     <label for="course-college">College *</label>
-                    <input type="text" id="course-college" placeholder="e.g., Engineering" required>
+                    <select id="course-college" required>
+                        <option value="">Select College</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label for="course-department">Department *</label>
-                    <input type="text" id="course-department" placeholder="e.g., Computer Science" required>
+                    <select id="course-department" required disabled>
+                        <option value="">Select College First</option>
+                    </select>
                 </div>
 
                 <div class="modal-actions">
