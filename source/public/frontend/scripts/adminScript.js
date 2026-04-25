@@ -1106,6 +1106,13 @@ function updatePendingCount() {
   const badge = document.getElementById('pending-count');
   const totalPending = pendingResources.length + pendingCourses.length;
   badge.textContent = totalPending;
+  
+  // Add pulsing animation when there are pending items
+  if (totalPending > 0) {
+    badge.setAttribute('data-has-pending', 'true');
+  } else {
+    badge.removeAttribute('data-has-pending');
+  }
 }
 
 // Edit pending course - opens the course modal with data
