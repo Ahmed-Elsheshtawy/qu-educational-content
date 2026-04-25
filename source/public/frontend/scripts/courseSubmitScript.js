@@ -226,11 +226,6 @@ async function handleSubmit(e) {
         // Reset form
         courseSubmitForm.reset();
         
-        // Redirect to home after 5 seconds
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 5000);
-        
     } catch (error) {
         console.error('Submission error:', error);
         showMessage(

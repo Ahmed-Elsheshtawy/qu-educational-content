@@ -17,6 +17,79 @@ import {
     syncResourceCounts
 } from '../api/adminApi.js';
 
+// Qatar University Colleges and Departments
+const qatarUniversityData = {
+    "College of Arts and Sciences": [
+        "Arabic Language Department",
+        "Biological & Environmental Sciences Department",
+        "Chemistry & Earth Sciences Department",
+        "English Literature and Linguistics Department",
+        "Humanities Department",
+        "International Affairs Department",
+        "Mass Communication Department",
+        "Mathematics and Statistics Department",
+        "Physics and Material Sciences Department",
+        "Social Sciences Department"
+    ],
+    "College of Business and Economics": [
+        "Accounting and Information Systems Department",
+        "Finance and Economics Department",
+        "Management and Marketing Department"
+    ],
+    "College of Education": [
+        "Educational Sciences Department",
+        "Psychological Sciences Department",
+        "Physical Education Department",
+        "Art Education Department"
+    ],
+    "College of Engineering": [
+        "Architecture and Urban Planning Department",
+        "Chemical Engineering Department",
+        "Civil and Environmental Engineering Department",
+        "Computer Science & Engineering Department",
+        "Electrical Engineering Department",
+        "Mechanical and Industrial Engineering Department"
+    ],
+    "College of Health Sciences": [
+        "Biomedical Sciences Department",
+        "Public Health Department",
+        "Physical Therapy & Rehabilitation Science Department",
+        "Human Nutrition Department"
+    ],
+    "College of Law": [
+        "Private Law Department",
+        "Public Law Department",
+        "Legal Skills Department"
+    ],
+    "College of Medicine": [
+        "Basic Medical Sciences Department",
+        "Population Medicine Department"
+    ],
+    "College of Pharmacy": [
+        "Clinical Pharmacy and Pharmacy Practice Department",
+        "Pharmacognosy Department",
+        "Medicinal Chemistry Department",
+        "Pharmacology Department",
+        "Pharmacokinetics Department",
+        "Pharmaceutics Department"
+    ],
+    "College of Sharia and Islamic Studies": [
+        "Islamic Jurisprudence Department",
+        "Islamic Culture & Preaching Department",
+        "Foundations of Islam Department"
+    ],
+    "College of Nursing": [
+        "Nursing Department"
+    ],
+    "College of Dental Medicine": [
+        "Dental Medicine Department"
+    ],
+    "College of Sport Sciences": [
+        "Sports Coaching Department",
+        "Sports Management Department"
+    ]
+};
+
 // State management
 let allCourses = [];
 let allResources = [];
@@ -76,6 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup event listeners
 function setupEventListeners() {
+  // Home button
+  const homeBtn = document.getElementById('home-btn');
+  if (homeBtn) {
+    homeBtn.addEventListener('click', () => {
+      window.location.href = '../index.html';
+    });
+  }
+
   // Logout
   if (logoutBtn) {
     logoutBtn.addEventListener('click', handleLogout);
@@ -99,6 +180,13 @@ function setupEventListeners() {
   // Course actions
   document.getElementById('add-course-btn').addEventListener('click', () => openCourseModal());
   document.getElementById('course-form').addEventListener('submit', handleCourseSubmit);
+  
+  // Course form college/department cascading
+  const courseCollegeSelect = document.getElementById('course-college');
+  const courseDepartmentSelect = document.getElementById('course-department');
+  if (courseCollegeSelect && courseDepartmentSelect) {
+    courseCollegeSelect.addEventListener('change', handleCourseFormCollegeChange);
+  }
 
   // Resource actions
   document.getElementById('add-resource-btn').addEventListener('click', () => openResourceModal());
@@ -404,11 +492,26 @@ function setupFilterListeners() {
   pendingDepartmentFilter.addEventListener('change', handlePendingDepartmentChange);
   pendingCourseFilter.addEventListener('change', filterPendingResources);
   pendingResetBtn.addEventListener('click', resetPendingFilters);
+
+  // Pending Courses filters
+  const pendingCoursesCollegeFilter = document.getElementById('pending-courses-college-filter');
+  const pendingCoursesDepartmentFilter = document.getElementById('pending-courses-department-filter');
+  const pendingCoursesResetBtn = document.getElementById('pending-courses-reset-filter');
+  
+  if (pendingCoursesCollegeFilter) {
+    pendingCoursesCollegeFilter.addEventListener('change', handlePendingCoursesCollegeChange);
+  }
+  if (pendingCoursesDepartmentFilter) {
+    pendingCoursesDepartmentFilter.addEventListener('change', filterPendingCourses);
+  }
+  if (pendingCoursesResetBtn) {
+    pendingCoursesResetBtn.addEventListener('click', resetPendingCoursesFilters);
+  }
 }
 
 // Populate all filters
 function populateAllFilters() {
-  const colleges = [...new Set(allCourses.map(c => c.college).filter(Boolean))].sort();
+  const colleges = Object.keys(qatarUniversityData).sort();
   
   // Courses filters
   const coursesCollegeFilter = document.getElementById('courses-college-filter');
@@ -424,6 +527,26 @@ function populateAllFilters() {
   const pendingCollegeFilter = document.getElementById('pending-college-filter');
   pendingCollegeFilter.innerHTML = '<option value="">All Colleges</option>' + 
     colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+  
+  // Pending courses college filter
+  const pendingCoursesCollegeFilter = document.getElementById('pending-courses-college-filter');
+  if (pendingCoursesCollegeFilter) {
+    pendingCoursesCollegeFilter.innerHTML = '<option value="">All Colleges</option>' + 
+      colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+  
+  // Course form modal college select
+  populateCourseFormCollege();
+}
+
+// Populate college dropdown in course form modal
+function populateCourseFormCollege() {
+  const colleges = Object.keys(qatarUniversityData).sort();
+  const collegeSelect = document.getElementById('course-college');
+  if (collegeSelect) {
+    collegeSelect.innerHTML = '<option value="">Select College</option>' + 
+      colleges.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
 }
 
 // COURSES FILTERS
@@ -438,12 +561,7 @@ function handleCoursesCollegeChange() {
     return;
   }
   
-  const departments = [...new Set(
-    allCourses
-      .filter(c => c.college === college)
-      .map(c => c.department)
-      .filter(Boolean)
-  )].sort();
+  const departments = qatarUniversityData[college] || [];
   
   departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
     departments.map(d => `<option value="${d}">${d}</option>`).join('');
@@ -492,12 +610,7 @@ function handleResourcesCollegeChange() {
     return;
   }
   
-  const departments = [...new Set(
-    allCourses
-      .filter(c => c.college === college)
-      .map(c => c.department)
-      .filter(Boolean)
-  )].sort();
+  const departments = qatarUniversityData[college] || [];
   
   departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
     departments.map(d => `<option value="${d}">${d}</option>`).join('');
@@ -583,12 +696,7 @@ function handlePendingCollegeChange() {
     return;
   }
   
-  const departments = [...new Set(
-    allCourses
-      .filter(c => c.college === college)
-      .map(c => c.department)
-      .filter(Boolean)
-  )].sort();
+  const departments = qatarUniversityData[college] || [];
   
   departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
     departments.map(d => `<option value="${d}">${d}</option>`).join('');
@@ -656,6 +764,52 @@ function resetPendingFilters() {
   document.getElementById('pending-course-filter').disabled = true;
   document.getElementById('pending-course-filter').innerHTML = '<option value="">Select a department first</option>';
   renderPendingTable(pendingResources);
+}
+
+// PENDING COURSES FILTERS
+function handlePendingCoursesCollegeChange() {
+  const college = document.getElementById('pending-courses-college-filter').value;
+  const departmentFilter = document.getElementById('pending-courses-department-filter');
+  
+  if (!college) {
+    departmentFilter.disabled = true;
+    departmentFilter.innerHTML = '<option value="">Select a college first</option>';
+    filterPendingCourses();
+    return;
+  }
+  
+  const departments = qatarUniversityData[college] || [];
+  
+  departmentFilter.innerHTML = '<option value="">All Departments</option>' + 
+    departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  departmentFilter.disabled = false;
+  
+  filterPendingCourses();
+}
+
+function filterPendingCourses() {
+  const college = document.getElementById('pending-courses-college-filter').value;
+  const department = document.getElementById('pending-courses-department-filter').value;
+  
+  let filtered = [...pendingCourses];
+  
+  if (college) {
+    filtered = filtered.filter(c => c.college === college);
+  }
+  
+  if (department) {
+    filtered = filtered.filter(c => c.department === department);
+  }
+  
+  renderPendingCoursesTable(filtered);
+}
+
+function resetPendingCoursesFilters() {
+  document.getElementById('pending-courses-college-filter').value = '';
+  document.getElementById('pending-courses-department-filter').value = '';
+  document.getElementById('pending-courses-department-filter').disabled = true;
+  document.getElementById('pending-courses-department-filter').innerHTML = '<option value="">Select a college first</option>';
+  renderPendingCoursesTable();
 }
 
 // Load pending resources
@@ -922,15 +1076,15 @@ async function loadPendingCourses() {
 }
 
 // Render pending courses table
-function renderPendingCoursesTable() {
+function renderPendingCoursesTable(courses = pendingCourses) {
   const tbody = document.getElementById('pending-courses-table-body');
   
-  if (pendingCourses.length === 0) {
+  if (courses.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No pending course requests</td></tr>';
     return;
   }
 
-  tbody.innerHTML = pendingCourses.map(course => `
+  tbody.innerHTML = courses.map(course => `
     <tr>
       <td>${course.courseCode}</td>
       <td>${course.courseName}</td>
@@ -1085,12 +1239,31 @@ function switchSubTab(subTabName) {
   }
 }
 
+// Course Form College Change Handler
+function handleCourseFormCollegeChange() {
+  const college = document.getElementById('course-college').value;
+  const departmentSelect = document.getElementById('course-department');
+  
+  if (!college) {
+    departmentSelect.innerHTML = '<option value="">Select College First</option>';
+    departmentSelect.disabled = true;
+    return;
+  }
+  
+  const departments = qatarUniversityData[college] || [];
+  departmentSelect.innerHTML = '<option value="">Select Department</option>' + 
+    departments.map(d => `<option value="${d}">${d}</option>`).join('');
+  departmentSelect.disabled = false;
+}
+
 // Course Modal Functions
 function openCourseModal(courseId = null) {
   currentEditCourse = courseId;
   const modal = document.getElementById('course-modal');
   const title = document.getElementById('course-modal-title');
   const form = document.getElementById('course-form');
+  const collegeSelect = document.getElementById('course-college');
+  const departmentSelect = document.getElementById('course-department');
   
   form.reset();
   form.querySelector('.form-error').textContent = '';
@@ -1102,12 +1275,20 @@ function openCourseModal(courseId = null) {
       document.getElementById('course-id').value = course._id;
       document.getElementById('course-code').value = course.courseCode;
       document.getElementById('course-name').value = course.courseName;
-      document.getElementById('course-college').value = course.college || '';
-      document.getElementById('course-department').value = course.department || '';
+      collegeSelect.value = course.college || '';
+      
+      // Trigger college change to populate departments
+      handleCourseFormCollegeChange();
+      
+      // Set department after departments are populated
+      departmentSelect.value = course.department || '';
     }
   } else {
     title.textContent = 'Add Course';
     document.getElementById('course-id').value = '';
+    collegeSelect.value = '';
+    departmentSelect.innerHTML = '<option value="">Select College First</option>';
+    departmentSelect.disabled = true;
   }
   
   modal.classList.add('active');
