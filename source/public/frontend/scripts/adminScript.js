@@ -1166,6 +1166,7 @@ window.editPendingCourse = function(courseId) {
   const modal = document.getElementById('course-modal');
   const title = document.getElementById('course-modal-title');
   const form = document.getElementById('course-form');
+  const departmentSelect = document.getElementById('course-department');
   
   form.reset();
   form.querySelector('.form-error').textContent = '';
@@ -1175,7 +1176,12 @@ window.editPendingCourse = function(courseId) {
   document.getElementById('course-code').value = course.courseCode;
   document.getElementById('course-name').value = course.courseName;
   document.getElementById('course-college').value = course.college || '';
-  document.getElementById('course-department').value = course.department || '';
+  
+  // Trigger college change to populate departments
+  handleCourseFormCollegeChange();
+  
+  // Set department after departments are populated
+  departmentSelect.value = course.department || '';
   
   // Set a flag to know we're editing a pending course
   currentEditCourse = courseId;
