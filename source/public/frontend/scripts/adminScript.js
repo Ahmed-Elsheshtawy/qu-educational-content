@@ -821,6 +821,14 @@ async function loadPendingResources() {
     updatePendingCount();
   } catch (error) {
     console.error('Failed to load pending resources:', error);
+    
+    // Check if it's an authentication error
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      console.warn('Authentication failed. Please log in again.');
+      // Optionally redirect to login
+      // window.location.href = '/login';
+    }
+    
     pendingResources = [];
     renderPendingTable();
     updatePendingCount();
@@ -1069,6 +1077,14 @@ async function loadPendingCourses() {
     updatePendingCount();
   } catch (error) {
     console.error('Failed to load pending courses:', error);
+    
+    // Check if it's an authentication error
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      console.warn('Authentication failed. Please log in again.');
+      // Optionally redirect to login
+      // window.location.href = '/login';
+    }
+    
     pendingCourses = [];
     renderPendingCoursesTable();
     updatePendingCount();
