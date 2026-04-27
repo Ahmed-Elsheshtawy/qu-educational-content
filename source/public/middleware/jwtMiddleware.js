@@ -7,12 +7,8 @@ export const authenticateJWT = (req, res, next) => {
   const token = req.cookies?.adminToken;
 
   if (!token) {
-    // For API requests, return 401 instead of redirecting
-    if (req.path.startsWith('/api/')) {
-      return res.status(401).json({ error: 'Unauthorized: No token provided' });
-    }
-    // For HTML page requests, redirect to login
-    return res.redirect('/login');
+    // Always return 401 JSON for admin API requests (no token)
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
   try {
@@ -22,12 +18,8 @@ export const authenticateJWT = (req, res, next) => {
   } catch (error) {
     // Clear invalid token
     res.clearCookie('adminToken');
-    // For API requests, return 401 instead of redirecting
-    if (req.path.startsWith('/api/')) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
-    // For HTML page requests, redirect to login
-    return res.redirect('/login');
+    // Always return 401 JSON for admin API requests (invalid token)
+    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };
 

@@ -133,11 +133,21 @@ export async function deleteResource(resourceId) {
 
 // Pending Resources
 export async function getPendingResources() {
+    console.log('🔌 API Call: GET /api/admin/resources/pending');
     const response = await fetch(`${API_BASE}/admin/resources/pending`, {
         credentials: 'include'
     });
-    if (!response.ok) throw new Error('Failed to fetch pending resources');
-    return response.json();
+    console.log('📤 API Response status:', response.status);
+    
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
+        throw new Error(`Failed to fetch pending resources: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ API Data received:', data);
+    return data;
 }
 
 export async function approveResource(resourceId) {
@@ -172,11 +182,21 @@ export async function rejectResource(resourceId) {
 
 // Pending Courses
 export async function getPendingCourses() {
+    console.log('🔌 API Call: GET /api/admin/courses/pending');
     const response = await fetch(`${API_BASE}/admin/courses/pending`, {
         credentials: 'include'
     });
-    if (!response.ok) throw new Error('Failed to fetch pending courses');
-    return response.json();
+    console.log('📤 API Response status:', response.status);
+    
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
+        throw new Error(`Failed to fetch pending courses: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ API Data received:', data);
+    return data;
 }
 
 export async function approveCourse(courseId) {
