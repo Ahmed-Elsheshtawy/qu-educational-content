@@ -136,6 +136,8 @@ resourcesRouter.post('/submit', async (req, res) => {
     };
 
     const resource = await addResource(submissionData);
+    
+    console.log('✅ Resource submitted with pending status:', { courseCode, title, status: submissionData.status, _id: resource._id });
 
     res.status(201).json({ 
       message: 'Resource submitted successfully and is pending review',

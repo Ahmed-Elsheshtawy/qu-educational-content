@@ -177,8 +177,11 @@ adminRouter.delete('/resources/:id/tags', async (req, res) => {
 adminRouter.get('/courses/pending', async (req, res) => {
   try {
     const pendingCourses = await fetchPendingCourses();
+    console.log('📊 Fetching pending courses from DB, found:', pendingCourses.length, 'items');
+    console.log('📋 Pending courses data:', pendingCourses);
     res.json(pendingCourses);
   } catch (error) {
+    console.error('❌ Error fetching pending courses:', error);
     res.status(500).json({ error: 'Failed to fetch pending courses', message: error.message });
   }
 });
@@ -215,8 +218,11 @@ adminRouter.delete('/courses/:id/reject', async (req, res) => {
 adminRouter.get('/resources/pending', async (req, res) => {
   try {
     const pendingResources = await fetchPendingResources();
+    console.log('📊 Fetching pending resources from DB, found:', pendingResources.length, 'items');
+    console.log('📋 Pending resources data:', pendingResources);
     res.json(pendingResources);
   } catch (error) {
+    console.error('❌ Error fetching pending resources:', error);
     res.status(500).json({ error: 'Failed to fetch pending resources', message: error.message });
   }
 });

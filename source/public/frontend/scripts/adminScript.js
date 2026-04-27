@@ -1141,6 +1141,11 @@ function renderPendingCoursesTable(courses = pendingCourses) {
 // Update pending count badge (includes both courses and resources)
 function updatePendingCount() {
   const badge = document.getElementById('pending-count');
+  if (!badge) {
+    console.warn('⚠️ pending-count element not found in DOM');
+    return;
+  }
+  
   const totalPending = pendingResources.length + pendingCourses.length;
   badge.textContent = totalPending;
   
