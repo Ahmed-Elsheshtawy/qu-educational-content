@@ -4,7 +4,8 @@ const API_BASE = '/api';
 // Authentication
 export async function logout() {
     const response = await fetch(`${API_BASE}/auth/logout`, {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
     });
     if (!response.ok) throw new Error('Failed to logout');
     return response.json();
@@ -23,6 +24,7 @@ export async function createCourse(courseData) {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(courseData)
     });
     
@@ -41,6 +43,7 @@ export async function updateCourse(courseId, courseData) {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(courseData)
     });
     
@@ -55,7 +58,8 @@ export async function updateCourse(courseId, courseData) {
 
 export async function deleteCourse(courseId) {
     const response = await fetch(`${API_BASE}/admin/courses/${courseId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -80,6 +84,7 @@ export async function createResource(resourceData) {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(resourceData)
     });
     
@@ -98,6 +103,7 @@ export async function updateResource(resourceId, resourceData) {
         headers: {
             'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(resourceData)
     });
     
@@ -112,7 +118,8 @@ export async function updateResource(resourceId, resourceData) {
 
 export async function deleteResource(resourceId) {
     const response = await fetch(`${API_BASE}/admin/resources/${resourceId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -126,14 +133,17 @@ export async function deleteResource(resourceId) {
 
 // Pending Resources
 export async function getPendingResources() {
-    const response = await fetch(`${API_BASE}/admin/resources/pending`);
+    const response = await fetch(`${API_BASE}/admin/resources/pending`, {
+        credentials: 'include'
+    });
     if (!response.ok) throw new Error('Failed to fetch pending resources');
     return response.json();
 }
 
 export async function approveResource(resourceId) {
     const response = await fetch(`${API_BASE}/admin/resources/${resourceId}/approve`, {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -147,7 +157,8 @@ export async function approveResource(resourceId) {
 
 export async function rejectResource(resourceId) {
     const response = await fetch(`${API_BASE}/admin/resources/${resourceId}/reject`, {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -161,14 +172,17 @@ export async function rejectResource(resourceId) {
 
 // Pending Courses
 export async function getPendingCourses() {
-    const response = await fetch(`${API_BASE}/admin/courses/pending`);
+    const response = await fetch(`${API_BASE}/admin/courses/pending`, {
+        credentials: 'include'
+    });
     if (!response.ok) throw new Error('Failed to fetch pending courses');
     return response.json();
 }
 
 export async function approveCourse(courseId) {
     const response = await fetch(`${API_BASE}/admin/courses/${courseId}/approve`, {
-        method: 'PUT'
+        method: 'PUT',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -182,7 +196,8 @@ export async function approveCourse(courseId) {
 
 export async function rejectCourse(courseId) {
     const response = await fetch(`${API_BASE}/admin/courses/${courseId}/reject`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
     });
     
     const result = await response.json();
@@ -196,7 +211,8 @@ export async function rejectCourse(courseId) {
 
 export async function syncResourceCounts() {
     const response = await fetch(`${API_BASE}/admin/courses/sync-counts`, {
-        method: 'POST'
+        method: 'POST',
+        credentials: 'include'
     });
     
     const result = await response.json();

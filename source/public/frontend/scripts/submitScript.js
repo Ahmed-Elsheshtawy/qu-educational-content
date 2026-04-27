@@ -462,6 +462,11 @@ async function handleSubmit(e) {
         fileInput.disabled = false;
         fileUrlInput.disabled = false;
         
+        // Refresh page after 5 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+        
     } catch (error) {
         console.error('Submission error:', error);
         showMessage(error.message || 'Network error. Please check your connection and try again.', 'error');

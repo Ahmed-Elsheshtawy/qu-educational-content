@@ -226,6 +226,11 @@ async function handleSubmit(e) {
         // Reset form
         courseSubmitForm.reset();
         
+        // Refresh page after 5 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 5000);
+        
     } catch (error) {
         console.error('Submission error:', error);
         showMessage(
