@@ -46,6 +46,8 @@ coursesRouter.post('/request', async (req, res) => {
       status: 'pending'
     });
 
+    console.log('✅ Course submitted with pending status:', { courseCode, status: 'pending', _id: course._id });
+
     res.status(201).json({ 
       message: 'Your course request is under review. An admin will approve it soon.', 
       course 

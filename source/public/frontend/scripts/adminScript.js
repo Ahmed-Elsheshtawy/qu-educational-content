@@ -116,6 +116,7 @@ let cancelButtons;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 Admin dashboard initializing...');
   // Initialize DOM elements
   logoutBtn = document.getElementById('logout-btn');
   tabButtons = document.querySelectorAll('.tab-btn');
@@ -129,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
   closeButtons = document.querySelectorAll('.close-btn');
   cancelButtons = document.querySelectorAll('.cancel-btn');
   
+  console.log('✅ DOM elements initialized');
   setupEventListeners();
+  console.log('📥 Loading dashboard data...');
   loadDashboardData();
   
   // Initialize tab from URL
@@ -815,12 +818,29 @@ function resetPendingCoursesFilters() {
 // Load pending resources
 async function loadPendingResources() {
   try {
+    console.log('📥 Loading pending resources...');
     const data = await getPendingResources();
+    console.log('📊 Raw response data:', data);
+    console.log('📊 Is array?', Array.isArray(data));
+    
     pendingResources = Array.isArray(data) ? data : (data.resources || []);
+    console.log('✅ Pending resources loaded:', pendingResources.length, 'items');
+    console.log('📋 Pending resources:', pendingResources);
+    
     renderPendingTable();
     updatePendingCount();
   } catch (error) {
-    console.error('Failed to load pending resources:', error);
+    console.error('❌ Failed to load pending resources:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Check if it's an authentication error
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      console.warn('⚠️ Authentication failed. Please log in again.');
+      // Optionally redirect to login
+      // window.location.href = '/login';
+    }
+    
     pendingResources = [];
     renderPendingTable();
     updatePendingCount();
@@ -1063,12 +1083,29 @@ async function handlePendingReject() {
 // Load pending courses
 async function loadPendingCourses() {
   try {
+    console.log('📥 Loading pending courses...');
     const data = await getPendingCourses();
+    console.log('📊 Raw response data:', data);
+    console.log('📊 Is array?', Array.isArray(data));
+    
     pendingCourses = Array.isArray(data) ? data : (data.courses || []);
+    console.log('✅ Pending courses loaded:', pendingCourses.length, 'items');
+    console.log('📋 Pending courses:', pendingCourses);
+    
     renderPendingCoursesTable();
     updatePendingCount();
   } catch (error) {
-    console.error('Failed to load pending courses:', error);
+    console.error('❌ Failed to load pending courses:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Check if it's an authentication error
+    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      console.warn('⚠️ Authentication failed. Please log in again.');
+      // Optionally redirect to login
+      // window.location.href = '/login';
+    }
+    
     pendingCourses = [];
     renderPendingCoursesTable();
     updatePendingCount();
@@ -1104,6 +1141,11 @@ function renderPendingCoursesTable(courses = pendingCourses) {
 // Update pending count badge (includes both courses and resources)
 function updatePendingCount() {
   const badge = document.getElementById('pending-count');
+  if (!badge) {
+    console.warn('⚠️ pending-count element not found in DOM');
+    return;
+  }
+  
   const totalPending = pendingResources.length + pendingCourses.length;
   badge.textContent = totalPending;
   
@@ -1124,6 +1166,7 @@ window.editPendingCourse = function(courseId) {
   const modal = document.getElementById('course-modal');
   const title = document.getElementById('course-modal-title');
   const form = document.getElementById('course-form');
+  const departmentSelect = document.getElementById('course-department');
   
   form.reset();
   form.querySelector('.form-error').textContent = '';
@@ -1133,7 +1176,12 @@ window.editPendingCourse = function(courseId) {
   document.getElementById('course-code').value = course.courseCode;
   document.getElementById('course-name').value = course.courseName;
   document.getElementById('course-college').value = course.college || '';
-  document.getElementById('course-department').value = course.department || '';
+  
+  // Trigger college change to populate departments
+  handleCourseFormCollegeChange();
+  
+  // Set department after departments are populated
+  departmentSelect.value = course.department || '';
   
   // Set a flag to know we're editing a pending course
   currentEditCourse = courseId;

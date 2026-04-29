@@ -19,7 +19,7 @@ export const authenticateJWT = (req, res, next) => {
     req.admin = decoded;
     next();
   } catch (error) {
-    // Clear invalid token and redirect to login
+    // Clear invalid token
     res.clearCookie('adminToken');
     if (req.originalUrl.startsWith('/api/')) {
         return res.status(401).json({ error: 'Unauthorized' });
