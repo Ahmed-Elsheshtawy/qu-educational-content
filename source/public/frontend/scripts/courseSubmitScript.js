@@ -78,12 +78,26 @@ const qatarUniversityData = {
 };
 
 // Setup form handler on page load
-document.addEventListener('DOMContentLoaded', () => {
+function initializeCourseSubmitForm() {
+    // Check if elements exist (view might not be visible yet)
+    if (!document.getElementById('course-college')) {
+        // Elements not in DOM yet, wait a bit and try again
+        setTimeout(initializeCourseSubmitForm, 100);
+        return;
+    }
+    
     populateCollegeSelect();
     setupFormHandler();
     setupCourseCodeFormatter();
     setupCascadingDropdowns();
-});
+}
+
+// Initialize when DOM is ready (handles both already loaded and still loading)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCourseSubmitForm);
+} else {
+    initializeCourseSubmitForm();
+}
 
 // Populate college dropdown
 function populateCollegeSelect() {

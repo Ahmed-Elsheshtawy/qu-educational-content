@@ -34,18 +34,9 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'login.html'));
 });
 
-// Submit resource page route
-app.get('/submit', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'submit.html'));
-});
-
 // Protected admin panel route
 app.get('/admin', authenticateJWT, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'admin.html'));
-});
-
-app.get('/course-submit', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'frontend', 'views', 'courseSubmit.html'));
 });
 
 // SPA fallback - serve index.html for client-side routes (excluding API routes and static files)

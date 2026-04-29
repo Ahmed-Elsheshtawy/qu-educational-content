@@ -45,7 +45,14 @@ let dragAndDropFiles = []; // Stores files from drag and drop operations
  * Initialize the application when DOM is ready
  * Sets up event handlers and loads initial data
  */
-document.addEventListener('DOMContentLoaded', () => {
+function initializeSubmitForm() {
+    // Check if elements exist (view might not be visible yet)
+    if (!document.getElementById('submit-year')) {
+        // Elements not in DOM yet, wait a bit and try again
+        setTimeout(initializeSubmitForm, 100);
+        return;
+    }
+    
     // Set current year as default
     document.getElementById('submit-year').value = new Date().getFullYear();
     
@@ -56,7 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCascadingDropdowns();
     setupSearchableCourseSelect();
     checkURLParameters();
-});
+}
+
+// Initialize when DOM is ready (handles both already loaded and still loading)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSubmitForm);
+} else {
+    initializeSubmitForm();
+}
 
 // ============================================================================
 // CASCADING DROPDOWN MANAGEMENT

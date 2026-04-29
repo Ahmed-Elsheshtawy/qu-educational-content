@@ -22,6 +22,8 @@
     <meta name="twitter:image" content="/FinalLogo.png">
     
     <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/submitStyles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -151,13 +153,200 @@
                     <div class="about-contact">
                         <h3>Contact Us</h3>
                         <p>For any questions, feedback, or inquiries regarding the website, feel free to reach out to us:</p>
-                        <a href="mailto:contact.masdarqu@gmail.com" class="contact-email">
+                        <a href="mailto:contact@masdarqu.com" class="contact-email">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                 <polyline points="22,6 12,13 2,6"></polyline>
                             </svg>
-                            contact.masdarqu@gmail.com
+                            contact@masdarqu.com
                         </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Submit Resource View -->
+    <div id="submit-view" style="display: none;">
+        <section class="submit-section">
+            <div class="container">
+                <div class="submit-header">
+                    <h2 class="page-title">Submit a Resource</h2>
+                    <p class="page-subtitle">Help fellow students by sharing educational materials. Your submission will be reviewed before being published.</p>
+                </div>
+
+                <div class="submit-container">
+                    <form id="submit-form" class="submit-form">
+                        <div class="form-group">
+                            <label for="submit-college">College *</label>
+                            <select id="submit-college" required>
+                                <option value="">Select College</option>
+                            </select>
+                            <small class="form-hint">Don't see your College? <a href="/course-submit" style="color: var(--primary-maroon); text-decoration: underline;">Request it here</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-department">Department *</label>
+                            <select id="submit-department" required disabled>
+                                <option value="">Select College First</option>
+                            </select>
+                            <small class="form-hint">Don't see your Department? <a href="/course-submit" style="color: var(--primary-maroon); text-decoration: underline;">Request it here</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-course-code">Course Code *</label>
+                            <div class="searchable-select-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="submit-course-search" 
+                                    class="searchable-select-input" 
+                                    placeholder="Type to search courses..." 
+                                    autocomplete="off"
+                                    spellcheck="false">
+                                <select id="submit-course-code" class="searchable-select-hidden" required disabled>
+                                    <option value="">Select Department First</option>
+                                </select>
+                                <div class="searchable-select-dropdown" id="submit-course-dropdown"></div>
+                            </div>
+                            <small class="form-hint">Don't see your course? <a href="/course-submit" style="color: var(--primary-maroon); text-decoration: underline;">Request it here</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-title">Resource Title *</label>
+                            <input type="text" id="submit-title" placeholder="e.g., Midterm Exam - Fall 2024" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-type">Resource Type *</label>
+                            <select id="submit-type" required>
+                                <option value="">Select Type</option>
+                                <option value="exam">Exam</option>
+                                <option value="lecture-notes">Lecture Notes</option>
+                                <option value="assignment">Assignment</option>
+                                <option value="solution">Solution</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-year">Year *</label>
+                            <input type="number" id="submit-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-file-url">File URL</label>
+                            <input type="url" id="submit-file-url" placeholder="https://drive.google.com/...">
+                            <small class="form-hint">Paste a shareable link from Google Drive, Dropbox, etc.</small>
+                        </div>
+
+                        <div class="form-divider">
+                            <span>OR</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-file">Upload File(s) or Folder *</label>
+                            <div id="drop-zone" style="border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 0.5rem; transition: background-color 0.3s;">
+                                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('submit-file').click()" style="padding: 0.5rem 1rem; height: auto;">Select Files</button>
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('submit-folder').click()" style="padding: 0.5rem 1rem; height: auto;">Select Folder</button>
+                                </div>
+                                <p style="margin: 0; color: #666;">Or drag and drop files and folders here</p>
+                                <input type="file" id="submit-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.rar,.png,.jpg,.jpeg" multiple style="display: none;">
+                                <input type="file" id="submit-folder" webkitdirectory directory multiple style="display: none;">
+                            </div>
+                            <small class="form-hint">Select multiple files or pick a folder to auto-compress into ZIP. Max 150MB total.</small>
+                            <div id="file-name-display" class="file-name-display"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-description">Description (Optional)</label>
+                            <textarea id="submit-description" rows="4" placeholder="Brief description of the resource..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="submit-tags">Tags (Optional)</label>
+                            <input type="text" id="submit-tags" placeholder="e.g., midterm, fall, 2024">
+                            <small class="form-hint">Separate tags with commas.</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit Resource</button>
+                            <a href="/" class="btn btn-secondary">Cancel</a>
+                        </div>
+
+                        <div id="submit-message" class="submit-message"></div>
+                    </form>
+
+                    <div class="submit-guidelines">
+                        <h3>Submission Guidelines</h3>
+                        <ul>
+                            <li>Only submit educational materials relevant to Qatar University courses</li>
+                            <li>Ensure you have the right to share the file</li>
+                            <li>Use clear, descriptive titles</li>
+                            <li>Either upload a file or provide a public URL (not both)</li>
+                            <li>Uploaded files are stored securely in the cloud</li>
+                            <li>All submissions are reviewed before being published</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Course Submit View -->
+    <div id="course-submit-view" style="display: none;">
+        <section class="submit-section">
+            <div class="container">
+                <div class="submit-header">
+                    <h2 class="page-title">Request a New Course</h2>
+                    <p class="page-subtitle">Don't see your course listed? Request it here and an admin will add it to the database.</p>
+                </div>
+
+                <div class="submit-container">
+                    <form id="course-submit-form" class="submit-form">
+                        <div class="form-group">
+                            <label for="course-college">College Name *</label>
+                            <select id="course-college" required>
+                                <option value="">Select College</option>
+                            </select>
+                            <small class="form-hint">Select the college</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course-department">Department Name *</label>
+                            <select id="course-department" required disabled>
+                                <option value="">Select College First</option>
+                            </select>
+                            <small class="form-hint">Select the department</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course-code">Course Code *</label>
+                            <input type="text" id="course-code" placeholder="e.g., CMPS251" required pattern="[A-Za-z]{4}[0-9]{3}" title="Format: 4 letters followed by 3 numbers">
+                            <small class="form-hint">Format: 4 letters + 3 numbers (e.g., CMPS251)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course-name">Course Name *</label>
+                            <input type="text" id="course-name" placeholder="e.g., Data Structures and Algorithms" required>
+                            <small class="form-hint">Enter the full course name</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <a href="/" class="btn btn-secondary">Cancel</a>
+                        </div>
+
+                        <div id="course-submit-message" class="submit-message"></div>
+                    </form>
+
+                    <div class="submit-guidelines">
+                        <h3>Request Guidelines</h3>
+                        <ul>
+                            <li>Make sure the course code format is correct (4 letters + 3 numbers)</li>
+                            <li>Double-check the spelling of college and department names</li>
+                            <li>All requests will be reviewed by an admin before adding to the database</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -167,9 +356,24 @@
     <!-- Inline script to prevent flash -->
     <script>
         // Run immediately before page renders
-        if (window.location.pathname === '/about') {
-            document.getElementById('home-view').style.display = 'none';
+        const path = window.location.pathname;
+        const views = ['home-view', 'about-view', 'submit-view', 'course-submit-view'];
+        
+        // Hide all views
+        views.forEach(viewId => {
+            const el = document.getElementById(viewId);
+            if (el) el.style.display = 'none';
+        });
+        
+        // Show the appropriate view
+        if (path === '/about') {
             document.getElementById('about-view').style.display = 'block';
+        } else if (path === '/submit') {
+            document.getElementById('submit-view').style.display = 'block';
+        } else if (path === '/course-submit') {
+            document.getElementById('course-submit-view').style.display = 'block';
+        } else {
+            document.getElementById('home-view').style.display = 'block';
         }
     </script>
 
@@ -202,6 +406,13 @@
         <div class="container">
             <div class="footer-content">
                 <p class="footer-text">&copy; 2026 Masdar. All rights reserved.</p>
+                <a href="mailto:contact@masdarqu.com" class="footer-support">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Contact Us
+                </a>
                 <a href="https://patreon.com/Masdar26?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink" target="_blank" rel="noopener noreferrer" class="footer-support">
                     <svg class="kofi-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003"/>
@@ -212,6 +423,9 @@
         </div>
     </footer>
 
+    <script type="module" src="scripts/router.js"></script>
     <script type="module" src="scripts/indexScript.js"></script>
+    <script type="module" src="scripts/submitScript.js"></script>
+    <script type="module" src="scripts/courseSubmitScript.js"></script>
 </body>
 </html>
