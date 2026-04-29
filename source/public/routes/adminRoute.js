@@ -6,6 +6,7 @@ import {
   incrementResourceCount,
   incrementResourceCountByCode,
   decrementResourceCount,
+  decrementResourceCountByCode,
   syncResourceCounts,
   fetchPendingCourses,
   approveCourse,
@@ -15,6 +16,7 @@ import {
   addResource,
   updateResource,
   deleteResource,
+  fetchResourceById,
   addTagToResource,
   removeTagFromResource,
   fetchPendingResources,
@@ -118,19 +120,14 @@ adminRouter.put('/resources/:id', async (req, res) => {
 // DELETE /api/admin/resources/:id - Delete a resource
 adminRouter.delete('/resources/:id', async (req, res) => {
   try {
-    // Delete the resource (returns true if successful, false if not found)
     const deleted = await deleteResource(req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: 'Resource not found' });
     }
 
-    // Decrement the resource count for the course
-    if (req.body.courseId) {
-      await decrementResourceCount(req.body.courseId);
-    }
-
     res.json({ message: 'Resource deleted successfully', success: true });
   } catch (error) {
+    console.error('Error deleting resource:', error);
     res.status(500).json({ error: 'Failed to delete resource', message: error.message });
   }
 });

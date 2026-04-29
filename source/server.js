@@ -24,6 +24,9 @@ app.use(cookieParser());
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'public', 'frontend')));
 
+// Serve images from the root images folder
+app.use('/images', express.static(path.join(__dirname, '..', 'images')));
+
 app.use('/api/auth', authRouter);
 app.use('/api/courses', coursesRouter);
 app.use('/api/resources', resourcesRouter);
@@ -43,7 +46,7 @@ app.get('/admin', authenticateJWT, (req, res) => {
 app.get(/^\/(?!api).*/, (req, res) => {
   // Don't serve index.html for admin route (handled above) or files with extensions
   if (req.path === '/admin' || req.path.includes('.')) {
-    return;
+    return res.status(404).end();
   }
   res.sendFile(path.join(__dirname, 'public', 'frontend', 'index.html'));
 });

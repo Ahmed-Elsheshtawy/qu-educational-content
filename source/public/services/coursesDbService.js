@@ -88,6 +88,16 @@ export async function incrementResourceCountByCode(courseCode) {
   return result.modifiedCount > 0;
 }
 
+// Decrement resource count by course code
+export async function decrementResourceCountByCode(courseCode) {
+  const coursesCollection = await getCoursesCollection();
+  const result = await coursesCollection.updateOne(
+    { courseCode: courseCode },
+    { $inc: { resourceCount: -1 } }
+  );
+  return result.modifiedCount > 0;
+}
+
 // Sync resource counts for all courses
 export async function syncResourceCounts() {
   const coursesCollection = await getCoursesCollection();

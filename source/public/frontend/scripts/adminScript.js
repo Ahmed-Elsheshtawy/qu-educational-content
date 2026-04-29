@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 Admin dashboard initializing...');
   // Initialize DOM elements
   logoutBtn = document.getElementById('logout-btn');
-  tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons = document.querySelectorAll('.nav-item');
   coursesTab = document.getElementById('courses-tab');
   resourcesTab = document.getElementById('resources-tab');
   pendingTab = document.getElementById('pending-tab');
@@ -165,12 +165,13 @@ function setupEventListeners() {
     logoutBtn.addEventListener('click', handleLogout);
   }
 
-  // Tabs
-  if (tabButtons.length > 0) {
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab, true)); // true = update URL
+  // Tabs - use sidebar nav items
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchTab(btn.dataset.tab, true);
     });
-  }
+  });
 
   // Sub-tabs for pending section
   const subTabButtons = document.querySelectorAll('.sub-tab-btn');
@@ -356,6 +357,24 @@ async function loadDashboardData() {
     loadPendingResources(),
     loadPendingCourses()
   ]);
+  updateStatCards();
+}
+
+// Update dashboard stat cards
+function updateStatCards() {
+  const statCourses = document.getElementById('stat-courses');
+  const statResources = document.getElementById('stat-resources');
+  const statPendingResources = document.getElementById('stat-pending-resources');
+  const statPendingCourses = document.getElementById('stat-pending-courses');
+  const pendingBadge = document.getElementById('pending-badge');
+  
+  if (statCourses) statCourses.textContent = allCourses.length;
+  if (statResources) statResources.textContent = allResources.length;
+  if (statPendingResources) statPendingResources.textContent = pendingResources.length;
+  if (statPendingCourses) statPendingCourses.textContent = pendingCourses.length;
+  
+  const totalPending = pendingResources.length + pendingCourses.length;
+  if (pendingBadge) pendingBadge.textContent = totalPending;
 }
 
 // Load courses
@@ -1234,9 +1253,9 @@ window.rejectPendingCourse = async function(courseId) {
 
 // Get tab name from URL hash
 function getTabFromURL() {
-  const hash = window.location.hash.substring(1); // Remove the '#'
-  const validTabs = ['courses', 'resources', 'pending'];
-  return validTabs.includes(hash) ? hash : 'courses'; // Default to courses
+  const hash = window.location.hash.substring(1);
+  const validTabs = ['dashboard', 'courses', 'resources', 'pending'];
+  return validTabs.includes(hash) ? hash : 'dashboard'; // Default to dashboard
 }
 
 // Switch tabs
@@ -1244,22 +1263,30 @@ function switchTab(tabName, updateURL = true) {
   try {
     tabButtons.forEach(btn => btn.classList.remove('active'));
     
-    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeButton = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
     if (activeButton) {
       activeButton.classList.add('active');
     }
     
-    coursesTab.classList.remove('active');
-    resourcesTab.classList.remove('active');
-    pendingTab.classList.remove('active');
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     
-    if (tabName === 'courses') {
+    // Show the target tab
+    const dashboardTab = document.getElementById('dashboard-tab');
+    if (tabName === 'dashboard' && dashboardTab) {
+      dashboardTab.classList.add('active');
+    } else if (tabName === 'courses') {
       coursesTab.classList.add('active');
     } else if (tabName === 'resources') {
       resourcesTab.classList.add('active');
     } else if (tabName === 'pending') {
       pendingTab.classList.add('active');
     }
+    
+    // Update top bar title
+    const titleMap = { dashboard: 'Dashboard', courses: 'Manage Courses', resources: 'Manage Resources', pending: 'Pending Submissions' };
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle && titleMap[tabName]) pageTitle.textContent = titleMap[tabName];
     
     // Update URL hash if requested
     if (updateURL && window.location.hash !== '#' + tabName) {
@@ -1612,7 +1639,6 @@ async function handleDelete() {
   try {
     if (deleteTarget.type === 'course') {
       await apiDeleteCourse(deleteTarget.id);
-      await syncResourceCounts();
       
       // Show success state
       button.innerHTML = '✓ Deleted';
@@ -1625,6 +1651,12 @@ async function handleDelete() {
         closeAllModals();
         await loadCourses();
         await loadResources();
+        
+        // Sync resource counts in the background (don't block on it)
+        syncResourceCounts().catch(err => {
+          console.warn('Failed to sync resource counts:', err);
+        });
+        
         button.innerHTML = originalText;
         button.classList.remove('success-state');
         button.disabled = false;
@@ -1632,7 +1664,6 @@ async function handleDelete() {
       
     } else if (deleteTarget.type === 'pending') {
       await rejectResource(deleteTarget.id);
-      await syncResourceCounts();
       
       // Show success state
       button.innerHTML = '✓ Rejected';
@@ -1644,6 +1675,12 @@ async function handleDelete() {
       setTimeout(async () => {
         closeAllModals();
         await loadDashboardData();
+        
+        // Sync resource counts in the background (don't block on it)
+        syncResourceCounts().catch(err => {
+          console.warn('Failed to sync resource counts:', err);
+        });
+        
         button.innerHTML = originalText;
         button.classList.remove('success-state');
         button.disabled = false;
@@ -1669,7 +1706,6 @@ async function handleDelete() {
       
     } else {
       await apiDeleteResource(deleteTarget.id);
-      await syncResourceCounts();
       
       // Show success state
       button.innerHTML = '✓ Deleted';
@@ -1682,6 +1718,12 @@ async function handleDelete() {
         closeAllModals();
         await loadResources();
         await loadCourses();
+        
+        // Sync resource counts in the background (don't block on it)
+        syncResourceCounts().catch(err => {
+          console.warn('Failed to sync resource counts:', err);
+        });
+        
         button.innerHTML = originalText;
         button.classList.remove('success-state');
         button.disabled = false;

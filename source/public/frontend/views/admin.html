@@ -7,24 +7,158 @@
     <link rel="stylesheet" href="../styles/adminStyles.css">
 </head>
 <body>
-    <header class="admin-header">
-        <div class="header-content">
-            <h1>Masdar - Admin Panel</h1>
-            <div class="header-buttons">
-                <button id="home-btn" class="home-btn" title="Return to main website">← Back to Main</button>
-                <button id="logout-btn" class="logout-btn">Logout</button>
-            </div>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/images/FinalLogo_downscaled.png" alt="Masdar Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Admin Panel</h2>
         </div>
-    </header>
 
-    <!-- Admin Dashboard -->
-    <main id="admin-dashboard" class="admin-dashboard">
-        <!-- Navigation Tabs -->
-        <div class="admin-tabs">
-            <button class="tab-btn" data-tab="courses">Manage Courses</button>
-            <button class="tab-btn" data-tab="resources">Manage Resources</button>
-            <button class="tab-btn" data-tab="pending">Pending Submissions</button>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="courses">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <span>Courses</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="resources">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <span>Resources</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="pending">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Pending</span>
+                <span class="badge" id="pending-badge">0</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="home-btn" class="sidebar-btn">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Back to Main</span>
+            </button>
+            <button id="logout-btn" class="sidebar-btn logout-btn">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Logout</span>
+            </button>
         </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <h1 id="page-title">Dashboard</h1>
+            <div class="user-info">
+                <span class="user-greeting">Welcome back, Admin</span>
+            </div>
+        </header>
+
+        <!-- Dashboard Tab -->
+        <section id="dashboard-tab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Courses</div>
+                        <div class="stat-value" id="stat-courses">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                            <polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total Resources</div>
+                        <div class="stat-value" id="stat-resources">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Pending Resources</div>
+                        <div class="stat-value" id="stat-pending-resources">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-info">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Pending Courses</div>
+                        <div class="stat-value" id="stat-pending-courses">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <button class="action-card" onclick="document.querySelector('[data-tab=courses]').click(); document.getElementById('add-course-btn').click();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Add New Course</span>
+                    </button>
+                    <button class="action-card" onclick="document.querySelector('[data-tab=resources]').click(); document.getElementById('add-resource-btn').click();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Add New Resource</span>
+                    </button>
+                    <button class="action-card" onclick="document.querySelector('[data-tab=pending]').click();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        <span>Review Pending</span>
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <!-- Courses Management Tab -->
         <section id="courses-tab" class="tab-content">
@@ -215,28 +349,32 @@
             <form id="course-form">
                 <input type="hidden" id="course-id">
                 
-                <div class="form-group">
-                    <label for="course-code">Course Code *</label>
-                    <input type="text" id="course-code" placeholder="e.g., CMPS101" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="course-code">Course Code *</label>
+                        <input type="text" id="course-code" placeholder="e.g., CMPS101" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course-name">Course Name *</label>
+                        <input type="text" id="course-name" placeholder="e.g., Introduction to Programming" required>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="course-name">Course Name *</label>
-                    <input type="text" id="course-name" placeholder="e.g., Introduction to Programming" required>
-                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="course-college">College *</label>
+                        <select id="course-college" required>
+                            <option value="">Select College</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="course-college">College *</label>
-                    <select id="course-college" required>
-                        <option value="">Select College</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="course-department">Department *</label>
-                    <select id="course-department" required disabled>
-                        <option value="">Select College First</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="course-department">Department *</label>
+                        <select id="course-department" required disabled>
+                            <option value="">Select College First</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="modal-actions">
@@ -280,26 +418,28 @@
                     <input type="text" id="resource-title" placeholder="e.g., Midterm Exam 2023" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="resource-type">Type *</label>
-                    <select id="resource-type" required>
-                        <option value="">Select Type</option>
-                        <option value="exam">Exam</option>
-                        <option value="lecture-notes">Lecture Notes</option>
-                        <option value="assignment">Assignment</option>
-                        <option value="solution">Solution</option>
-                        <option value="other">Other</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="resource-type">Type *</label>
+                        <select id="resource-type" required>
+                            <option value="">Select Type</option>
+                            <option value="exam">Exam</option>
+                            <option value="lecture-notes">Lecture Notes</option>
+                            <option value="assignment">Assignment</option>
+                            <option value="solution">Solution</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resource-year">Year *</label>
+                        <input type="number" id="resource-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="resource-description">Description</label>
-                    <textarea id="resource-description" rows="3" placeholder="Brief description of the resource"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="resource-year">Year *</label>
-                    <input type="number" id="resource-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                    <textarea id="resource-description" rows="2" placeholder="Brief description of the resource"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -365,26 +505,28 @@
                     <input type="text" id="pending-title" placeholder="e.g., Midterm Exam 2023" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="pending-type">Type *</label>
-                    <select id="pending-type" required>
-                        <option value="">Select Type</option>
-                        <option value="exam">Exam</option>
-                        <option value="lecture-notes">Lecture Notes</option>
-                        <option value="assignment">Assignment</option>
-                        <option value="solution">Solution</option>
-                        <option value="other">Other</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pending-type">Type *</label>
+                        <select id="pending-type" required>
+                            <option value="">Select Type</option>
+                            <option value="exam">Exam</option>
+                            <option value="lecture-notes">Lecture Notes</option>
+                            <option value="assignment">Assignment</option>
+                            <option value="solution">Solution</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pending-year">Year *</label>
+                        <input type="number" id="pending-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="pending-description">Description</label>
-                    <textarea id="pending-description" rows="3" placeholder="Brief description of the resource"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="pending-year">Year *</label>
-                    <input type="number" id="pending-year" min="2000" max="2100" placeholder="e.g., 2024" required>
+                    <textarea id="pending-description" rows="2" placeholder="Brief description of the resource"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -412,10 +554,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer style="background-color: #8B1538; color: white; text-align: center; padding: 1rem; margin-top: 2rem;">
-        <p style="margin: 0; font-size: 0.9rem;">&copy; 2026 Masdar. All rights reserved.</p>
-    </footer>
+    
 
     <script src="../scripts/adminScript.js" type="module"></script>
 </body>
