@@ -229,7 +229,7 @@ async function handleSubmit(e) {
         // Refresh page after 5 seconds
         setTimeout(() => {
             window.location.reload();
-        }, 5000);
+        }, 500);
         
     } catch (error) {
         console.error('Submission error:', error);
