@@ -7,6 +7,7 @@ const departmentSelect = document.getElementById('submit-department');
 const courseSelect = document.getElementById('submit-course-code');
 const submitMessage = document.getElementById('submit-message');
 const fileInput = document.getElementById('submit-file');
+const folderInput = document.getElementById('submit-folder');
 const fileUrlInput = document.getElementById('submit-file-url');
 const fileNameDisplay = document.getElementById('file-name-display');
 
@@ -273,17 +274,16 @@ function setupFormHandler() {
 
 // Setup file input handler
 function setupFileInput() {
-    fileInput.addEventListener('change', (e) => {
-        const files = e.target.files;
+    const handleFiles = (files, isFolder) => {
         if (files.length > 0) {
             // Calculate total size
             const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
             
             // Show file info
-            if (files.length === 1) {
+            if (files.length === 1 && !isFolder) {
                 fileNameDisplay.textContent = `Selected: ${files[0].name} (${formatFileSize(files[0].size)})`;
             } else {
-                fileNameDisplay.textContent = `Selected: ${files.length} files (${formatFileSize(totalSize)} total) - Will be compressed to ZIP`;
+                fileNameDisplay.textContent = `Selected: ${isFolder ? 'Folder with ' : ''}${files.length} files (${formatFileSize(totalSize)} total) - Will be compressed to ZIP`;
             }
             fileNameDisplay.style.display = 'block';
             
@@ -294,15 +294,25 @@ function setupFileInput() {
             fileNameDisplay.style.display = 'none';
             fileUrlInput.disabled = false;
         }
+    };
+
+    fileInput.addEventListener('change', (e) => {
+        if (folderInput) folderInput.value = ''; // clear folder input
+        handleFiles(e.target.files, false);
     });
+
+    if (folderInput) {
+        folderInput.addEventListener('change', (e) => {
+            if (fileInput) fileInput.value = ''; // clear file input
+            handleFiles(e.target.files, true);
+        });
+    }
 
     // Enable file input when URL is cleared
     fileUrlInput.addEventListener('input', () => {
-        if (fileUrlInput.value) {
-            fileInput.disabled = true;
-        } else {
-            fileInput.disabled = false;
-        }
+        const hasUrl = !!fileUrlInput.value;
+        fileInput.disabled = hasUrl;
+        if (folderInput) folderInput.disabled = hasUrl;
     });
 }
 
@@ -325,10 +335,11 @@ async function compressFilesToZip(files, progressCallback) {
         // Add each file to the ZIP
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+            const relativePath = file.webkitRelativePath || file.name;
             if (progressCallback) {
-                progressCallback(`Adding ${file.name}... (${i + 1}/${files.length})`);
+                progressCallback(`Adding ${relativePath}... (${i + 1}/${files.length})`);
             }
-            zip.file(file.name, file);
+            zip.file(relativePath, file);
         }
         
         // Generate ZIP file
@@ -362,7 +373,12 @@ async function handleSubmit(e) {
     const tagsInput = document.getElementById('submit-tags').value;
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
-    const files = fileInput.files;
+    let files = [];
+    if (folderInput && folderInput.files.length > 0) {
+        files = folderInput.files;
+    } else if (fileInput && fileInput.files.length > 0) {
+        files = fileInput.files;
+    }
     const fileUrl = document.getElementById('submit-file-url').value;
 
     // Validate that either file or URL is provided
