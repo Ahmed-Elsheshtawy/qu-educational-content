@@ -7,6 +7,9 @@ export const authenticateJWT = (req, res, next) => {
   const token = req.cookies?.adminToken;
 
   if (!token) {
+    if (req.originalUrl.startsWith('/api/')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
     // Redirect to login page if no token
     return res.redirect('/login');
   }
@@ -18,6 +21,9 @@ export const authenticateJWT = (req, res, next) => {
   } catch (error) {
     // Clear invalid token and redirect to login
     res.clearCookie('adminToken');
+    if (req.originalUrl.startsWith('/api/')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
     return res.redirect('/login');
   }
 };
@@ -39,7 +45,7 @@ export const loginAdmin = (req, res) => {
   const token = jwt.sign(
     { role: 'admin', timestamp: Date.now() },
     JWT_SECRET,
-    { expiresIn: '24h' }
+    { expiresIn: '100y' } // Lasts forever (100 years)
   );
 
   // Set token in httpOnly cookie
@@ -47,7 +53,7 @@ export const loginAdmin = (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 100 * 365 * 24 * 60 * 60 * 1000 // 100 years
   });
 
   res.json({ message: 'Login successful', token });

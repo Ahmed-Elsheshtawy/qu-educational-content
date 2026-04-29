@@ -1,13 +1,25 @@
 // API Configuration
 const API_BASE = '/api';
 
+// Helper function to handle response
+async function handleResponse(response) {
+    if (response.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Unauthorized');
+    }
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.error || 'API request failed');
+    }
+    return result;
+}
+
 // Authentication
 export async function logout() {
     const response = await fetch(`${API_BASE}/auth/logout`, {
         method: 'POST'
     });
-    if (!response.ok) throw new Error('Failed to logout');
-    return response.json();
+    return handleResponse(response);
 }
 
 // Courses
@@ -127,8 +139,7 @@ export async function deleteResource(resourceId) {
 // Pending Resources
 export async function getPendingResources() {
     const response = await fetch(`${API_BASE}/admin/resources/pending`);
-    if (!response.ok) throw new Error('Failed to fetch pending resources');
-    return response.json();
+    return handleResponse(response);
 }
 
 export async function approveResource(resourceId) {
@@ -162,8 +173,7 @@ export async function rejectResource(resourceId) {
 // Pending Courses
 export async function getPendingCourses() {
     const response = await fetch(`${API_BASE}/admin/courses/pending`);
-    if (!response.ok) throw new Error('Failed to fetch pending courses');
-    return response.json();
+    return handleResponse(response);
 }
 
 export async function approveCourse(courseId) {
