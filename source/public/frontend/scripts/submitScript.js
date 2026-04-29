@@ -17,6 +17,9 @@ let allCourses = [];
 
 // Load courses on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Set current year as default
+    document.getElementById('submit-year').value = new Date().getFullYear();
+    
     loadCourses();
     setupFormHandler();
     setupFileInput();
