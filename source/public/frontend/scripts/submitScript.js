@@ -9,6 +9,7 @@ const submitMessage = document.getElementById('submit-message');
 const fileInput = document.getElementById('submit-file');
 const folderInput = document.getElementById('submit-folder');
 const fileUrlInput = document.getElementById('submit-file-url');
+let dragAndDropFiles = []; // To store files from drag and drop
 const fileNameDisplay = document.getElementById('file-name-display');
 
 // Store all courses for filtering
@@ -274,13 +275,26 @@ function setupFormHandler() {
 
 // Setup file input handler
 function setupFileInput() {
-    const handleFiles = (files, isFolder) => {
+    const handleFiles = (files, source) => {
+        // source can be 'file', 'folder', or 'drag'
+        if (source === 'file') {
+            dragAndDropFiles = [];
+            if (folderInput) folderInput.value = '';
+        } else if (source === 'folder') {
+            dragAndDropFiles = [];
+            if (fileInput) fileInput.value = '';
+        } else if (source === 'drag') {
+            if (fileInput) fileInput.value = '';
+            if (folderInput) folderInput.value = '';
+        }
+
         if (files.length > 0) {
+            const isFolder = source === 'folder';
             // Calculate total size
             const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
             
             // Show file info
-            if (files.length === 1 && !isFolder) {
+            if (files.length === 1 && !isFolder && source !== 'drag') {
                 fileNameDisplay.textContent = `Selected: ${files[0].name} (${formatFileSize(files[0].size)})`;
             } else {
                 fileNameDisplay.textContent = `Selected: ${isFolder ? 'Folder with ' : ''}${files.length} files (${formatFileSize(totalSize)} total) - Will be compressed to ZIP`;
@@ -297,22 +311,120 @@ function setupFileInput() {
     };
 
     fileInput.addEventListener('change', (e) => {
-        if (folderInput) folderInput.value = ''; // clear folder input
-        handleFiles(e.target.files, false);
+        handleFiles(e.target.files, 'file');
     });
 
     if (folderInput) {
         folderInput.addEventListener('change', (e) => {
-            if (fileInput) fileInput.value = ''; // clear file input
-            handleFiles(e.target.files, true);
+            handleFiles(e.target.files, 'folder');
         });
+    }
+
+    // Drag and Drop Zone logic
+    const dropZone = document.getElementById('drop-zone');
+    if (dropZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.style.backgroundColor = '#f0f8ff';
+            dropZone.style.borderColor = '#007bff';
+        }
+
+        function unhighlight(e) {
+            dropZone.style.backgroundColor = 'transparent';
+            dropZone.style.borderColor = '#ccc';
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        async function handleDrop(e) {
+            const items = e.dataTransfer.items;
+            const collectedFiles = [];
+            
+            if (items) {
+                // Use DataTransferItemList interface to access the file(s)
+                const promises = [];
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i].webkitGetAsEntry ? items[i].webkitGetAsEntry() : items[i].getAsEntry();
+                    if (item) {
+                        promises.push(traverseFileTree(item, item.name, collectedFiles));
+                    }
+                }
+                await Promise.all(promises);
+            } else {
+                // Use DataTransfer interface to access the file(s) (fallback)
+                for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                    collectedFiles.push(e.dataTransfer.files[i]);
+                }
+            }
+            
+            dragAndDropFiles = collectedFiles;
+            handleFiles(collectedFiles, 'drag');
+        }
+
+        function traverseFileTree(item, path, collectedFiles) {
+            return new Promise((resolve, reject) => {
+                if (item.isFile) {
+                    item.file(file => {
+                        // Manually attach relative path to avoid flattening
+                        Object.defineProperty(file, 'webkitRelativePath', {
+                            value: path,
+                            writable: true
+                        });
+                        collectedFiles.push(file);
+                        resolve();
+                    });
+                } else if (item.isDirectory) {
+                    const dirReader = item.createReader();
+                    const readEntries = () => {
+                        dirReader.readEntries(async (entries) => {
+                            if (entries.length > 0) {
+                                const promises = [];
+                                for (let i = 0; i < entries.length; i++) {
+                                    promises.push(traverseFileTree(entries[i], path + "/" + entries[i].name, collectedFiles));
+                                }
+                                await Promise.all(promises);
+                                readEntries(); // Continue reading in case there are more entries
+                            } else {
+                                resolve();
+                            }
+                        }, reject);
+                    };
+                    readEntries();
+                }
+            });
+        }
     }
 
     // Enable file input when URL is cleared
     fileUrlInput.addEventListener('input', () => {
         const hasUrl = !!fileUrlInput.value;
-        fileInput.disabled = hasUrl;
-        if (folderInput) folderInput.disabled = hasUrl;
+        const formGroup = document.querySelector('label[for="submit-file"]').parentNode;
+        const buttons = formGroup.querySelectorAll('button');
+        if (hasUrl) {
+            dropZone.style.opacity = '0.5';
+            dropZone.style.pointerEvents = 'none';
+            buttons.forEach(btn => btn.disabled = true);
+        } else {
+            dropZone.style.opacity = '1';
+            dropZone.style.pointerEvents = 'auto';
+            buttons.forEach(btn => btn.disabled = false);
+        }
     });
 }
 
@@ -374,7 +486,9 @@ async function handleSubmit(e) {
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
     
     let files = [];
-    if (folderInput && folderInput.files.length > 0) {
+    if (dragAndDropFiles && dragAndDropFiles.length > 0) {
+        files = dragAndDropFiles;
+    } else if (folderInput && folderInput.files.length > 0) {
         files = folderInput.files;
     } else if (fileInput && fileInput.files.length > 0) {
         files = fileInput.files;
