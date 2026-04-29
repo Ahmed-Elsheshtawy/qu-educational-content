@@ -535,8 +535,8 @@ async function handleSubmit(e) {
             }
             
             // Check total size
-            if (fileToUpload.size > 75 * 1024 * 1024) {
-                throw new Error('File size exceeds 75MB limit. Please reduce file size.');
+            if (fileToUpload.size > 150 * 1024 * 1024) {
+                throw new Error('File size exceeds 150MB limit. Please reduce file size.');
             }
             
             // Direct upload to R2 using presigned URL
