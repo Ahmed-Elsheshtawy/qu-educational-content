@@ -1,25 +1,55 @@
 import { getCourses, submitResource } from '../api/submitApi.js';
 
-// DOM Elements
+// ============================================================================
+// CONSTANTS & CONFIGURATION
+// ============================================================================
+
+/**
+ * Maximum allowed file size for uploads (150MB)
+ */
+const MAX_FILE_SIZE = 150 * 1024 * 1024;
+
+/**
+ * Redirect delay after successful submission (milliseconds)
+ */
+const REDIRECT_DELAY = 500;
+
+// ============================================================================
+// DOM ELEMENTS & STATE
+// ============================================================================
+
+// Form elements
 const submitForm = document.getElementById('submit-form');
+const submitMessage = document.getElementById('submit-message');
+
+// Dropdown elements
 const collegeSelect = document.getElementById('submit-college');
 const departmentSelect = document.getElementById('submit-department');
 const courseSelect = document.getElementById('submit-course-code');
-const submitMessage = document.getElementById('submit-message');
+
+// File input elements
 const fileInput = document.getElementById('submit-file');
 const folderInput = document.getElementById('submit-folder');
 const fileUrlInput = document.getElementById('submit-file-url');
-let dragAndDropFiles = []; // To store files from drag and drop
 const fileNameDisplay = document.getElementById('file-name-display');
 
-// Store all courses for filtering
-let allCourses = [];
+// Application state
+let allCourses = []; // Stores all available courses for filtering
+let dragAndDropFiles = []; // Stores files from drag and drop operations
 
-// Load courses on page load
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+/**
+ * Initialize the application when DOM is ready
+ * Sets up event handlers and loads initial data
+ */
 document.addEventListener('DOMContentLoaded', () => {
     // Set current year as default
     document.getElementById('submit-year').value = new Date().getFullYear();
     
+    // Initialize all components
     loadCourses();
     setupFormHandler();
     setupFileInput();
@@ -28,13 +58,25 @@ document.addEventListener('DOMContentLoaded', () => {
     checkURLParameters();
 });
 
-// Setup cascading dropdowns
+// ============================================================================
+// CASCADING DROPDOWN MANAGEMENT
+// ============================================================================
+
+/**
+ * Setup cascading dropdown behavior
+ * College → Department → Course hierarchy
+ */
 function setupCascadingDropdowns() {
     collegeSelect.addEventListener('change', handleCollegeChange);
     departmentSelect.addEventListener('change', handleDepartmentChange);
 }
 
-// Handle college selection
+/**
+ * Handle college selection change
+ * Updates available departments and resets course selection
+ * 
+ * @param {boolean} preventSearchClear - If true, preserves search input value
+ */
 function handleCollegeChange(preventSearchClear = false) {
     const selectedCollege = collegeSelect.value;
     const searchInput = document.getElementById('submit-course-search');
@@ -82,7 +124,12 @@ function handleCollegeChange(preventSearchClear = false) {
     }
 }
 
-// Handle department selection
+/**
+ * Handle department selection change
+ * Updates available courses based on selected college and department
+ * 
+ * @param {boolean} preventSearchClear - If true, preserves search input value
+ */
 function handleDepartmentChange(preventSearchClear = false) {
     const selectedCollege = collegeSelect.value;
     const selectedDepartment = departmentSelect.value;
@@ -121,7 +168,14 @@ function handleDepartmentChange(preventSearchClear = false) {
     }
 }
 
-// Setup searchable course select
+// ============================================================================
+// SEARCHABLE COURSE SELECT
+// ============================================================================
+
+/**
+ * Setup searchable/filterable course dropdown
+ * Provides type-ahead search functionality for course selection
+ */
 function setupSearchableCourseSelect() {
     const searchInput = document.getElementById('submit-course-search');
     const dropdown = document.getElementById('submit-course-dropdown');
@@ -157,7 +211,12 @@ function setupSearchableCourseSelect() {
     });
 }
 
-// Render course options in searchable dropdown
+/**
+ * Render filtered course options in the searchable dropdown
+ * Filters by college, department, and search term
+ * 
+ * @param {string} searchTerm - Optional search query to filter courses
+ */
 function renderCourseOptions(searchTerm = '') {
     const dropdown = document.getElementById('submit-course-dropdown');
     const hiddenSelect = document.getElementById('submit-course-code');
@@ -243,7 +302,14 @@ function renderCourseOptions(searchTerm = '') {
     });
 }
 
-// Load available courses
+// ============================================================================
+// COURSE DATA MANAGEMENT
+// ============================================================================
+
+/**
+ * Load all available courses from the API
+ * Populates college dropdown and stores courses for filtering
+ */
 async function loadCourses() {
     try {
         const courses = await getCourses();
@@ -259,7 +325,11 @@ async function loadCourses() {
     }
 }
 
-// Populate college dropdown
+/**
+ * Populate the college dropdown with unique colleges from courses
+ * 
+ * @param {Array} courses - Array of course objects
+ */
 function populateCollegeSelect(courses) {
     // Get unique colleges
     const colleges = [...new Set(courses.map(course => course.college))].sort();
@@ -271,15 +341,31 @@ function populateCollegeSelect(courses) {
     collegeSelect.innerHTML = '<option value="">Select College</option>' + options;
 }
 
-// Setup form submission handler
+// ============================================================================
+// FILE HANDLING
+// ============================================================================
+
+/**
+ * Setup form submission event handler
+ */
 function setupFormHandler() {
     submitForm.addEventListener('submit', handleSubmit);
 }
 
-// Setup file input handler
+/**
+ * Setup file input handlers for file/folder selection and drag-and-drop
+ * Manages file selection from multiple sources: file picker, folder picker, drag-and-drop
+ */
 function setupFileInput() {
+    /**
+     * Handle file selection from any source
+     * Clears other input methods and displays file information
+     * 
+     * @param {FileList|File[]} files - Selected files
+     * @param {string} source - Source of selection: 'file', 'folder', or 'drag'
+     */
     const handleFiles = (files, source) => {
-        // source can be 'file', 'folder', or 'drag'
+        // Clear other file input sources to prevent conflicts
         if (source === 'file') {
             dragAndDropFiles = [];
             if (folderInput) folderInput.value = '';
@@ -293,18 +379,19 @@ function setupFileInput() {
 
         if (files.length > 0) {
             const isFolder = source === 'folder';
-            // Calculate total size
             const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
             
-            // Show file info
+            // Display appropriate message based on selection type
             if (files.length === 1 && !isFolder && source !== 'drag') {
+                // Single file selected
                 fileNameDisplay.textContent = `Selected: ${files[0].name} (${formatFileSize(files[0].size)})`;
             } else {
+                // Multiple files or folder - will be compressed to ZIP
                 fileNameDisplay.textContent = `Selected: ${isFolder ? 'Folder with ' : ''}${files.length} files (${formatFileSize(totalSize)} total) - Will be compressed to ZIP`;
             }
             fileNameDisplay.style.display = 'block';
             
-            // Clear URL input if file is selected
+            // Disable URL input when files are selected
             fileUrlInput.value = '';
             fileUrlInput.disabled = true;
         } else {
@@ -323,9 +410,13 @@ function setupFileInput() {
         });
     }
 
-    // Drag and Drop Zone logic
+    // ========================================================================
+    // Drag and Drop Zone Setup
+    // ========================================================================
+    
     const dropZone = document.getElementById('drop-zone');
     if (dropZone) {
+        // Prevent default drag behaviors for all drag events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
@@ -335,6 +426,7 @@ function setupFileInput() {
             e.stopPropagation();
         }
 
+        // Visual feedback: highlight zone during drag
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, highlight, false);
         });
@@ -353,14 +445,21 @@ function setupFileInput() {
             dropZone.style.borderColor = '#ccc';
         }
 
+        // Handle dropped files and folders
         dropZone.addEventListener('drop', handleDrop, false);
 
+        /**
+         * Handle file/folder drop event
+         * Recursively traverses dropped folders to collect all files
+         * 
+         * @param {DragEvent} e - Drop event
+         */
         async function handleDrop(e) {
             const items = e.dataTransfer.items;
             const collectedFiles = [];
             
             if (items) {
-                // Use DataTransferItemList interface to access the file(s)
+                // Use DataTransferItemList interface for folder support
                 const promises = [];
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i].webkitGetAsEntry ? items[i].webkitGetAsEntry() : items[i].getAsEntry();
@@ -370,7 +469,7 @@ function setupFileInput() {
                 }
                 await Promise.all(promises);
             } else {
-                // Use DataTransfer interface to access the file(s) (fallback)
+                // Fallback: Use DataTransfer interface (no folder support)
                 for (let i = 0; i < e.dataTransfer.files.length; i++) {
                     collectedFiles.push(e.dataTransfer.files[i]);
                 }
@@ -380,11 +479,21 @@ function setupFileInput() {
             handleFiles(collectedFiles, 'drag');
         }
 
+        /**
+         * Recursively traverse file tree for drag-and-drop folders
+         * Preserves folder structure by maintaining relative paths
+         * 
+         * @param {FileSystemEntry} item - File or directory entry
+         * @param {string} path - Current relative path
+         * @param {File[]} collectedFiles - Array to collect files into
+         * @returns {Promise<void>}
+         */
         function traverseFileTree(item, path, collectedFiles) {
             return new Promise((resolve, reject) => {
                 if (item.isFile) {
+                    // Process file: attach path and add to collection
                     item.file(file => {
-                        // Manually attach relative path to avoid flattening
+                        // Attach relative path to maintain folder structure in ZIP
                         Object.defineProperty(file, 'webkitRelativePath', {
                             value: path,
                             writable: true
@@ -393,17 +502,21 @@ function setupFileInput() {
                         resolve();
                     });
                 } else if (item.isDirectory) {
+                    // Process directory: recursively read all entries
                     const dirReader = item.createReader();
                     const readEntries = () => {
                         dirReader.readEntries(async (entries) => {
                             if (entries.length > 0) {
+                                // Process all entries in this batch
                                 const promises = [];
                                 for (let i = 0; i < entries.length; i++) {
                                     promises.push(traverseFileTree(entries[i], path + "/" + entries[i].name, collectedFiles));
                                 }
                                 await Promise.all(promises);
-                                readEntries(); // Continue reading in case there are more entries
+                                // Continue reading (large directories may require multiple batches)
+                                readEntries();
                             } else {
+                                // No more entries, directory is complete
                                 resolve();
                             }
                         }, reject);
@@ -414,7 +527,11 @@ function setupFileInput() {
         }
     }
 
-    // Enable file input when URL is cleared
+    // ========================================================================
+    // File/URL Input Toggle
+    // ========================================================================
+    
+    // Disable file inputs when URL is provided (and vice versa)
     fileUrlInput.addEventListener('input', () => {
         const hasUrl = !!fileUrlInput.value;
         const formGroup = document.querySelector('label[for="submit-file"]').parentNode;
@@ -431,7 +548,12 @@ function setupFileInput() {
     });
 }
 
-// Format file size
+/**
+ * Format file size in human-readable format
+ * 
+ * @param {number} bytes - File size in bytes
+ * @returns {string} Formatted size string (e.g., "15.5 MB")
+ */
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -440,12 +562,44 @@ function formatFileSize(bytes) {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
-// Compress multiple files into a ZIP
+/**
+ * Generate a standardized filename with course code, date, and time
+ * Format: CourseCode_YYYY-MM-DD_HH-MM-SS_resources.extension
+ * 
+ * @param {string} courseCode - Course code (e.g., ELEC201, CMPS205)
+ * @param {string} fileExtension - File extension (e.g., pdf, zip)
+ * @returns {string} Standardized filename
+ */
+function generateStandardFilename(courseCode, fileExtension) {
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+    return `${courseCode}_${timestamp}_resources.${fileExtension}`;
+}
+
+/**
+ * Rename a file with a standardized name
+ * Creates a new File object with the same content but different name
+ * 
+ * @param {File} file - Original file
+ * @param {string} newFileName - New filename
+ * @returns {File} New file with updated name
+ */
+function renameFile(file, newFileName) {
+    return new File([file], newFileName, { type: file.type });
+}
+
+/**
+ * Compress multiple files into a single ZIP archive
+ * Generates a unique filename based on course code and timestamp
+ * 
+ * @param {File[]} files - Array of files to compress
+ * @param {Function} progressCallback - Optional callback for progress updates
+ * @returns {Promise<File>} ZIP file with all compressed content
+ */
 async function compressFilesToZip(files, progressCallback) {
     try {
         const zip = new JSZip();
         const courseCode = document.getElementById('submit-course-code').value.trim().toUpperCase().replace(/\s+/g, '');
-        const timestamp = new Date().toISOString().slice(0, 10);
         
         // Add each file to the ZIP
         for (let i = 0; i < files.length; i++) {
@@ -468,8 +622,8 @@ async function compressFilesToZip(files, progressCallback) {
             compressionOptions: { level: 9 }
         });
         
-        // Create a File object from the Blob
-        const zipFileName = `${courseCode}_${timestamp}_resources.zip`;
+        // Create a File object with standardized filename
+        const zipFileName = generateStandardFilename(courseCode, 'zip');
         return new File([zipBlob], zipFileName, { type: 'application/zip' });
     } catch (error) {
         console.error('Compression error:', error);
@@ -477,7 +631,16 @@ async function compressFilesToZip(files, progressCallback) {
     }
 }
 
-// Handle form submission
+// ============================================================================
+// FORM SUBMISSION
+// ============================================================================
+
+/**
+ * Handle form submission for resource upload
+ * Validates input, compresses files if needed, uploads to R2, and submits metadata
+ * 
+ * @param {Event} e - Form submit event
+ */
 async function handleSubmit(e) {
     e.preventDefault();
     
@@ -534,11 +697,15 @@ async function handleSubmit(e) {
                     (status) => { submitBtn.textContent = status; }
                 );
             } else {
-                fileToUpload = files[0];
+                // Single file: rename it with standardized format
+                const originalFile = files[0];
+                const fileExtension = originalFile.name.split('.').pop();
+                const standardFileName = generateStandardFilename(courseCode, fileExtension);
+                fileToUpload = renameFile(originalFile, standardFileName);
             }
             
-            // Check total size
-            if (fileToUpload.size > 150 * 1024 * 1024) {
+            // Validate file size
+            if (fileToUpload.size > MAX_FILE_SIZE) {
                 throw new Error('File size exceeds 150MB limit. Please reduce file size.');
             }
             
@@ -595,10 +762,10 @@ async function handleSubmit(e) {
         fileInput.disabled = false;
         fileUrlInput.disabled = false;
         
-        // Refresh page after 5 seconds
+        // Redirect to home page after short delay
         setTimeout(() => {
             window.location.reload();
-        }, 500);
+        }, REDIRECT_DELAY);
         
     } catch (error) {
         console.error('Submission error:', error);
@@ -608,7 +775,14 @@ async function handleSubmit(e) {
     }
 }
 
-// Upload file directly to R2 using presigned URL
+/**
+ * Upload file directly to Cloudflare R2 using presigned URL
+ * Two-step process: 1) Get presigned URL from server, 2) Upload to R2
+ * 
+ * @param {File} file - File to upload
+ * @param {HTMLElement} submitBtn - Submit button for status updates
+ * @returns {Promise<string>} Public URL of uploaded file
+ */
 async function uploadFileDirectly(file, submitBtn) {
     try {
         // Request presigned URL from server
@@ -663,7 +837,14 @@ async function uploadFileDirectly(file, submitBtn) {
     }
 }
 
-// Check URL parameters and store for later use
+// ============================================================================
+// URL PARAMETER HANDLING
+// ============================================================================
+
+/**
+ * Check URL parameters and store for later use
+ * Allows pre-filling form from URL query parameters
+ */
 function checkURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -679,7 +860,10 @@ function checkURLParameters() {
     }
 }
 
-// Pre-fill form from URL parameters
+/**
+ * Pre-fill form fields from stored URL parameters
+ * Automatically selects college, department, and course if provided in URL
+ */
 function prefillFromURL() {
     const college = sessionStorage.getItem('prefill_college');
     const department = sessionStorage.getItem('prefill_department');
@@ -738,17 +922,28 @@ function prefillFromURL() {
     submitForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Show message
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Display a message to the user
+ * 
+ * @param {string} message - Message text to display
+ * @param {string} type - Message type ('success', 'error', 'info')
+ */
 function showMessage(message, type) {
     submitMessage.textContent = message;
     submitMessage.className = `submit-message ${type}`;
     submitMessage.style.display = 'block';
     
-    // Scroll to message
+    // Scroll to message for visibility
     submitMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Hide message
+/**
+ * Hide the message display
+ */
 function hideMessage() {
     submitMessage.style.display = 'none';
     submitMessage.className = 'submit-message';

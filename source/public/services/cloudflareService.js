@@ -24,9 +24,12 @@ const PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL; // Your R2 bucket's pub
  */
 export async function uploadFile(fileBuffer, originalName, mimeType) {
   try {
-    // Generate unique filename
+    // Generate unique filename while preserving the original name
     const fileExtension = originalName.split('.').pop();
-    const uniqueFileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${fileExtension}`;
+    const baseFileName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+    // Sanitize filename: remove special characters but keep underscores and hyphens
+    const sanitizedBaseName = baseFileName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const uniqueFileName = `${sanitizedBaseName}.${fileExtension}`;
     
     // Upload to R2
     const command = new PutObjectCommand({
@@ -83,9 +86,12 @@ export async function deleteFile(fileUrl) {
  */
 export async function generatePresignedUploadUrl(originalName, mimeType) {
   try {
-    // Generate unique filename
+    // Generate unique filename while preserving the original name
     const fileExtension = originalName.split('.').pop();
-    const uniqueFileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${fileExtension}`;
+    const baseFileName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+    // Sanitize filename: remove special characters but keep underscores and hyphens
+    const sanitizedBaseName = baseFileName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const uniqueFileName = `${sanitizedBaseName}.${fileExtension}`;
     
     // Create upload command
     const command = new PutObjectCommand({
