@@ -17,60 +17,6 @@ let filteredCourses = [];
 let currentPage = 1;
 const coursesPerPage = 9;
 
-// View management
-function showView(viewName) {
-  const homeView = document.getElementById('home-view');
-  const aboutView = document.getElementById('about-view');
-  const navHome = document.getElementById('nav-home');
-  const navAbout = document.getElementById('nav-about');
-
-  // Remove active class from all nav links
-  navHome.classList.remove('active');
-  navAbout.classList.remove('active');
-
-  if (viewName === 'about') {
-    homeView.style.display = 'none';
-    aboutView.style.display = 'block';
-    navAbout.classList.add('active');
-  } else {
-    homeView.style.display = 'block';
-    aboutView.style.display = 'none';
-    navHome.classList.add('active');
-  }
-}
-
-// Handle route changes
-function handleRouteChange() {
-  const path = window.location.pathname;
-  if (path === '/about') {
-    showView('about');
-  } else {
-    showView('home');
-  }
-}
-
-// Navigate to a route
-function navigateTo(path) {
-  history.pushState(null, '', path);
-  handleRouteChange();
-}
-
-// Handle navigation clicks
-function setupNavigation() {
-  document.getElementById('nav-home').addEventListener('click', (e) => {
-    e.preventDefault();
-    navigateTo('/');
-  });
-
-  document.getElementById('nav-about').addEventListener('click', (e) => {
-    e.preventDefault();
-    navigateTo('/about');
-  });
-
-  // Handle browser back/forward buttons
-  window.addEventListener('popstate', handleRouteChange);
-}
-
 // Load and display all courses
 async function loadCourses() {
   try {
@@ -311,8 +257,6 @@ function goToPreviousPage() {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   loadCourses();
-  setupNavigation();
-  handleRouteChange();
   
   // Setup pagination button listeners
   nextPageBtn.addEventListener('click', goToNextPage);
