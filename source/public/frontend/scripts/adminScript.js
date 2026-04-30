@@ -48,6 +48,7 @@ const qatarUniversityData = {
         "Civil and Environmental Engineering Department",
         "Computer Science & Engineering Department",
         "Electrical Engineering Department",
+        "General Engineering Department",
         "Mechanical and Industrial Engineering Department"
     ],
     "College of Health Sciences": [
