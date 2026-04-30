@@ -38,7 +38,9 @@ class Router {
     }
     
     handleRoute() {
-        const path = window.location.pathname;
+        // Normalize the path (remove trailing slashes, convert to lowercase)
+        let path = window.location.pathname.replace(/\/+$/, '') || '/';
+        
         const viewId = this.routes[path] || 'home-view';
         
         // Hide all views
@@ -60,11 +62,17 @@ class Router {
     updateNavigation(path) {
         // Update active nav link styling
         document.querySelectorAll('.nav-link').forEach(link => {
+            // First remove all active classes
+            link.classList.remove('active');
+        });
+        
+        // Then add active class only to the matching link
+        document.querySelectorAll('.nav-link').forEach(link => {
             const href = link.getAttribute('href');
-            if (href === path) {
+            // Normalize href for comparison (remove trailing slashes)
+            const normalizedHref = href.replace(/\/+$/, '') || '/';
+            if (normalizedHref === path) {
                 link.classList.add('active');
-            } else {
-                link.classList.remove('active');
             }
         });
     }
