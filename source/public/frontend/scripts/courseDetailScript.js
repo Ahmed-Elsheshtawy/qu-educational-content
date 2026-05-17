@@ -135,7 +135,14 @@ function createResourceItem(resource) {
     yearEl.remove();
   }
 
-  item.querySelector('.resource-downloads').textContent = `${resource.downloads || 0} downloads`;
+  const fileSizeEl = item.querySelector('.resource-filesize');
+  if (resource.fileSize) {
+    fileSizeEl.textContent = `File Size: ${formatFileSize(resource.fileSize)}`;
+  } else {
+    fileSizeEl.remove();
+  }
+
+  item.querySelector('.resource-downloads').textContent = `Downloaded by ${resource.downloads || 0} students`;
 
   // Populate tags
   const tagsContainer = item.querySelector('.resource-tags');
