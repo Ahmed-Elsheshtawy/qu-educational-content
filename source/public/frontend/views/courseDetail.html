@@ -13,17 +13,27 @@
         <div class="header-bg"></div>
         <div class="container">
             <div class="header-content">
-                <div class="brand">
-                    <h1 class="brand-name">Masdar</h1>
-                    <span class="brand-divider"></span>
-                    <p class="brand-subtitle">Qatar University</p>
-                </div>
-                <nav class="nav">
-                    <a href="/" class="nav-link">Home</a>
-                    <a href="/about" class="nav-link">About</a>
+                <a href="/" class="brand">
+                    <img src="/FinalLogo.png" alt="Masdar – Qatar University" class="brand-logo">
+                </a>
+                <nav class="nav" id="main-nav">
+                    <a href="/" class="nav-link" id="nav-home">Home</a>
+                    <a href="/about" class="nav-link" id="nav-about">About</a>
                     <a href="/submit" class="nav-link">Submit Resource</a>
                     <a href="/course-submit" class="nav-link">Request Course</a>
+                    <a href="https://patreon.com/Masdar26?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink" target="_blank" rel="noopener noreferrer" class="nav-support">
+                        <svg class="kofi-icon-nav" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003"/>
+                        </svg>
+                        Support
+                    </a>
+                    <a href="/admin" class="nav-link">Admin</a>
                 </nav>
+                <button class="nav-burger" id="nav-burger" aria-label="Open navigation menu" aria-expanded="false">
+                    <span class="burger-line"></span>
+                    <span class="burger-line"></span>
+                    <span class="burger-line"></span>
+                </button>
             </div>
         </div>
     </header>
