@@ -143,6 +143,18 @@ button.loading {
     opacity: 0.8;
 }
 
+.stat-card.loading .stat-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-dark);
+}
+
+.stat-card.loading .stat-value .spinner {
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    border-top-color: var(--text-dark);
+}
+
 button.success-state {
     background-color: var(--success) !important;
     border-color: var(--success) !important;
@@ -364,7 +376,7 @@ body {
 /* ===================== DASHBOARD ===================== */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.25rem;
     margin-bottom: 2.5rem;
 }

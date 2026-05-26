@@ -352,13 +352,32 @@ async function handleLogout() {
 
 // Load dashboard data
 async function loadDashboardData() {
-  await Promise.all([
-    loadCourses(),
-    loadResources(),
-    loadPendingResources(),
-    loadPendingCourses()
-  ]);
-  updateStatCards();
+  setDashboardLoading(true);
+  try {
+    await Promise.all([
+      loadCourses(),
+      loadResources(),
+      loadPendingResources(),
+      loadPendingCourses()
+    ]);
+  } finally {
+    updateStatCards();
+    setDashboardLoading(false);
+  }
+}
+
+// Set loading state for dashboard stats
+function setDashboardLoading(isLoading) {
+  const statCards = document.querySelectorAll('.stats-grid .stat-card');
+  statCards.forEach(card => {
+    const statValue = card.querySelector('.stat-value');
+    if (!statValue) return;
+
+    card.classList.toggle('loading', isLoading);
+    if (isLoading) {
+      statValue.innerHTML = '<span class="spinner"></span>';
+    }
+  });
 }
 
 // Update dashboard stat cards
@@ -367,13 +386,27 @@ function updateStatCards() {
   const statResources = document.getElementById('stat-resources');
   const statPendingResources = document.getElementById('stat-pending-resources');
   const statPendingCourses = document.getElementById('stat-pending-courses');
+  const statDownloads = document.getElementById('stat-downloads');
+  const statTotalSize = document.getElementById('stat-total-size');
   const pendingBadge = document.getElementById('pending-badge');
-  
+
+  const totalDownloads = allResources.reduce((sum, resource) => {
+    return sum + (Number(resource.downloads) || 0);
+  }, 0);
+
+  const totalSizeBytes = allResources.reduce((sum, resource) => {
+    return sum + (Number(resource.fileSize) || 0);
+  }, 0);
+
+  const totalSizeGB = (totalSizeBytes / (1024 ** 3)).toFixed(2);
+
   if (statCourses) statCourses.textContent = allCourses.length;
   if (statResources) statResources.textContent = allResources.length;
   if (statPendingResources) statPendingResources.textContent = pendingResources.length;
   if (statPendingCourses) statPendingCourses.textContent = pendingCourses.length;
-  
+  if (statDownloads) statDownloads.textContent = totalDownloads;
+  if (statTotalSize) statTotalSize.textContent = `${totalSizeGB} GB`;
+
   const totalPending = pendingResources.length + pendingCourses.length;
   if (pendingBadge) pendingBadge.textContent = totalPending;
 }
