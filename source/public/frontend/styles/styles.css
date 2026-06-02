@@ -46,12 +46,10 @@ body {
 
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
-    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--primary-maroon);
-    border-radius: 10px;
     border: 2px solid #f1f1f1;
 }
 
@@ -155,7 +153,6 @@ body {
     font-weight: 500;
     font-size: 0.95rem;
     padding: 0.75rem 1.5rem;
-    border-radius: 10px;
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: 0.3px;
@@ -170,7 +167,6 @@ body {
     right: 0;
     bottom: 0;
     background: rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
     transform: scale(0);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: -1;
@@ -198,7 +194,6 @@ body {
     right: 20%;
     height: 3px;
     background: var(--accent-gold);
-    border-radius: 2px 2px 0 0;
 }
 .nav-support {
     color: var(--text-light);
@@ -206,7 +201,6 @@ body {
     font-weight: 600;
     font-size: 0.95rem;
     padding: 0.6rem 1.2rem;
-    border-radius: 8px;
     transition: all 0.3s ease;
     background: rgba(196, 169, 98, 0.15);
     border: 1px solid rgba(196, 169, 98, 0.3);
@@ -233,7 +227,6 @@ body {
     font-weight: 700;
     font-size: 0.95rem;
     padding: 0.75rem 1.75rem;
-    border-radius: 10px;
     margin-left: 1rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: 0.3px;
@@ -323,7 +316,6 @@ body {
     flex: 1;
     padding: 1rem 1.5rem;
     border: none;
-    border-radius: 10px;
     font-size: 1rem;
     outline: none;
     transition: box-shadow 0.3s ease;
@@ -341,7 +333,6 @@ body {
     background-color: var(--accent-gold);
     color: var(--text-dark);
     border: none;
-    border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
@@ -367,7 +358,6 @@ body {
 .filter-select {
     padding: 0.875rem 1.25rem;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
     font-size: 0.95rem;
     color: var(--text-dark);
     background-color: var(--background-white);
@@ -396,7 +386,6 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
     color: var(--text-light);
     border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -437,7 +426,6 @@ body {
 .course-card {
     background-color: var(--background-white);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
     padding: 1.5rem;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -464,7 +452,6 @@ body {
     letter-spacing: 0.8px;
     background-color: rgba(139, 21, 56, 0.08);
     padding: 0.375rem 0.75rem;
-    border-radius: 6px;
 }
 
 .semester-badge {
@@ -473,7 +460,6 @@ body {
     color: var(--text-dark);
     background-color: var(--background-light);
     padding: 0.25rem 0.625rem;
-    border-radius: 4px;
 }
 
 .course-name {
@@ -528,7 +514,6 @@ body {
     background-color: var(--primary-maroon);
     color: var(--text-light);
     border: none;
-    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
@@ -558,7 +543,6 @@ body {
     background-color: var(--primary-maroon);
     color: var(--text-light);
     border: none;
-    border-radius: 6px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -597,7 +581,6 @@ body {
     height: 220px;
     margin: 0 auto 1.5rem;
     display: block;
-    border-radius: 50%;
     background: white;
     padding: 0.5rem;
 }
@@ -613,7 +596,6 @@ body {
     margin: 2.5rem auto 0;
     background: var(--background-white);
     padding: 3rem;
-    border-radius: 12px;
 }
 
 .about-intro {
@@ -649,7 +631,6 @@ body {
     width: 4px;
     height: 24px;
     background: var(--accent-gold);
-    border-radius: 2px;
 }
 
 .about-block p {
@@ -687,7 +668,6 @@ body {
     padding: 1.5rem;
     background: linear-gradient(135deg, rgba(139, 21, 56, 0.05) 0%, rgba(196, 169, 98, 0.05) 100%);
     border-left: 4px solid var(--primary-maroon);
-    border-radius: 8px;
 }
 
 .about-disclaimer p {
@@ -707,7 +687,6 @@ body {
     margin-top: 3rem;
     padding: 2rem;
     background: linear-gradient(135deg, rgba(196, 169, 98, 0.1) 0%, rgba(196, 169, 98, 0.05) 100%);
-    border-radius: 12px;
     border: 2px solid var(--accent-gold);
 }
 
@@ -725,7 +704,6 @@ body {
     height: 1.5rem;
     background: var(--accent-gold);
     margin-right: 0.75rem;
-    border-radius: 2px;
     vertical-align: middle;
 }
 
@@ -767,7 +745,6 @@ body {
     background: linear-gradient(135deg, var(--accent-gold) 0%, #D4B972 100%);
     color: var(--primary-maroon);
     text-decoration: none;
-    border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -776,6 +753,11 @@ body {
 
 .support-button:hover {
     background: linear-gradient(135deg, #D4B972 0%, var(--accent-gold) 100%);
+}
+
+.developer-button {
+    color: maroon;
+    text-decoration: none;
 }
 
 .kofi-icon-about {
@@ -788,7 +770,6 @@ body {
     margin-top: 3rem;
     padding: 2rem;
     background: linear-gradient(135deg, var(--primary-maroon) 0%, var(--dark-maroon) 100%);
-    border-radius: 12px;
     text-align: center;
 }
 
@@ -814,7 +795,6 @@ body {
     background: var(--background-white);
     color: var(--primary-maroon);
     text-decoration: none;
-    border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -857,7 +837,6 @@ body {
     color: var(--text-light);
     text-decoration: none;
     padding: 0.5rem 1rem;
-    border-radius: 6px;
     background-color: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
     font-size: 0.9rem;
@@ -1015,7 +994,6 @@ body {
     padding: 8px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 8px;
     cursor: pointer;
     transition: background 0.2s ease;
     flex-shrink: 0;
@@ -1030,7 +1008,6 @@ body {
     width: 100%;
     height: 2px;
     background: white;
-    border-radius: 2px;
     transition: transform 0.3s ease, opacity 0.3s ease;
     transform-origin: center;
 }
@@ -1083,7 +1060,6 @@ body {
         width: 100%;
         padding: 0.875rem 1.25rem;
         font-size: 1rem;
-        border-radius: 8px;
     }
 
     .nav-support {

@@ -24,6 +24,11 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/submitStyles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script type="module" src="scripts/navScript.js" defer></script>
+    <script type="module" src="scripts/router.js" defer></script>
+    <script type="module" src="scripts/indexScript.js" defer></script>
+    <script type="module" src="scripts/submitScript.js" defer></script>
+    <script type="module" src="scripts/courseSubmitScript.js" defer></script>
 </head>
 <body>
     <!-- Header -->
@@ -116,15 +121,20 @@
                     </div>
 
                     <div class="about-block">
-                        <h3>Our Mission</h3>
-                        <p>We believe that education is enhanced when students collaborate and share knowledge. Masdar provides a centralized hub where students can contribute and access quality academic resources, making learning more efficient and collaborative.</p>
+                        <h3>About the Developer (Me)</h3>
+                        <p>My name is Ahmed Elsheshtawy. I am a Qatar University Student, currently pursuing a Bachelor's degree in Electrical Engineering. Click <a href="https://aelsheshtawy.com" target="_blank" rel="noopener noreferrer" class="developer-button">here</a> to learn more about me.</p>
                     </div>
 
                     <div class="about-block">
-                        <h3>What We Offer</h3>
+                        <h3>My Mission</h3>
+                        <p>I believe that education is enhanced when students collaborate and share knowledge. Masdar provides a centralized hub where students can contribute and access quality academic resources, making learning more efficient and collaborative.
+                    </div>
+
+                    <div class="about-block">
+                        <h3>What I Offer</h3>
                         <ul>
-                            <li>Past exam papers and solutions</li>
-                            <li>Lecture notes and study guides</li>
+                            <li>Past exam papers and Quizzes</li>
+                            <li>Lecture notes and Useful Explanations</li>
                             <li>Course assignments and projects</li>
                             <li>Easy-to-navigate course catalog</li>
                             <li>Community-driven content</li>
@@ -132,16 +142,16 @@
                     </div>
 
                     <div class="about-disclaimer">
-                        <p><strong>Disclaimer:</strong> This is an independent project built by students for students, and is not officially affiliated with or endorsed by Qatar University.</p>
+                        <p><strong>Disclaimer:</strong> This is an independent project built by a student for students, and is not officially affiliated with or endorsed by Qatar University.</p>
                     </div>
 
                     <div class="about-support">
                         <h3>Support the Project</h3>
-                        <p>Masdar is a free platform maintained by students. Running this service requires:</p>
+                        <p>Masdar is a free platform maintained by a student. Running this service requires:</p>
                         <ul class="support-costs">
                             <li>Hosting and server infrastructure</li>
                             <li>API usage costs for file storage and retrieval</li>
-                            <li>Domain registration and SSL certificates</li>
+                            <li>Domain registration</li>
                             <li>Ongoing maintenance and development</li>
                         </ul>
                         <p>Your support helps keep Masdar free and accessible for all Qatar University students. Even a small donation helps cover these costs and ensures the platform stays online.</p>
@@ -149,13 +159,13 @@
                             <svg class="kofi-icon-about" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003"/>
                             </svg>
-                            Support Us on Patreon
+                            Support Me on Patreon
                         </a>
                     </div>
 
                     <div class="about-contact">
-                        <h3>Contact Us</h3>
-                        <p>For any questions, feedback, or inquiries regarding the website, feel free to reach out to us:</p>
+                        <h3>Contact Me</h3>
+                        <p>For any questions, feedback, or inquiries regarding the website, feel free to reach out to me:</p>
                         <a href="mailto:contact@masdarqu.com" class="contact-email">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -356,29 +366,8 @@
         </section>
     </div>
 
-    <!-- Inline script to prevent flash -->
-    <script>
-        // Run immediately before page renders
-        const path = window.location.pathname;
-        const views = ['home-view', 'about-view', 'submit-view', 'course-submit-view'];
-        
-        // Hide all views
-        views.forEach(viewId => {
-            const el = document.getElementById(viewId);
-            if (el) el.style.display = 'none';
-        });
-        
-        // Show the appropriate view
-        if (path === '/about') {
-            document.getElementById('about-view').style.display = 'block';
-        } else if (path === '/submit') {
-            document.getElementById('submit-view').style.display = 'block';
-        } else if (path === '/course-submit') {
-            document.getElementById('course-submit-view').style.display = 'block';
-        } else {
-            document.getElementById('home-view').style.display = 'block';
-        }
-    </script>
+    <!-- View router script to prevent flash -->
+    <script src="scripts/viewScript.js"></script>
 
     <!-- Course Card Template -->
     <template id="course-card-template">
@@ -408,58 +397,24 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <p class="footer-text">&copy; 2026 Masdar. All rights reserved.</p>
                 <a href="mailto:contact@masdarqu.com" class="footer-support">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22,6 12,13 2,6"></polyline>
                     </svg>
-                    Contact Us
+                    Contact Me
                 </a>
+                <p class="footer-text">&copy; 2026 Masdar. All rights reserved.</p>
                 <a href="https://patreon.com/Masdar26?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink" target="_blank" rel="noopener noreferrer" class="footer-support">
                     <svg class="kofi-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M15.386.524c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 4.4 20.136.524 15.386.524M.003 23.537h4.22V.524H.003"/>
                     </svg>
-                    Support Us
+                    Support Me
                 </a>
             </div>
         </div>
     </footer>
 
-    <script>
-        (function () {
-            const burger = document.getElementById('nav-burger');
-            const nav = document.getElementById('main-nav');
-            if (!burger || !nav) return;
-
-            burger.addEventListener('click', function () {
-                const isOpen = nav.classList.toggle('is-open');
-                burger.classList.toggle('is-open', isOpen);
-                burger.setAttribute('aria-expanded', String(isOpen));
-            });
-
-            // Close menu when any nav link is clicked
-            nav.querySelectorAll('a').forEach(function (link) {
-                link.addEventListener('click', function () {
-                    nav.classList.remove('is-open');
-                    burger.classList.remove('is-open');
-                    burger.setAttribute('aria-expanded', 'false');
-                });
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!nav.contains(e.target) && !burger.contains(e.target)) {
-                    nav.classList.remove('is-open');
-                    burger.classList.remove('is-open');
-                    burger.setAttribute('aria-expanded', 'false');
-                }
-            });
-        })();
-    </script>
-    <script type="module" src="scripts/router.js"></script>
-    <script type="module" src="scripts/indexScript.js"></script>
-    <script type="module" src="scripts/submitScript.js"></script>
-    <script type="module" src="scripts/courseSubmitScript.js"></script>
+    
 </body>
 </html>
