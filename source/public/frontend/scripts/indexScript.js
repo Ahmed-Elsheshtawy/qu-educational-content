@@ -97,16 +97,9 @@ function createCourseCard(course) {
   card.querySelector('.department').textContent = course.department || 'N/A';
   card.querySelector('.resource-count').textContent = `${course.resourceCount || 0} Resources`;
   
-  // Add click handler to the entire card
-  const cardElement = card.querySelector('.course-card');
-  cardElement.addEventListener('click', () => {
-    navigateToCourse(course.courseCode);
-  });
-  
-  // Add click handler to the View button
+  // Add click handler to the View button only
   const viewButton = card.querySelector('.view-button');
-  viewButton.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent card click from firing
+  viewButton.addEventListener('click', () => {
     navigateToCourse(course.courseCode);
   });
   
