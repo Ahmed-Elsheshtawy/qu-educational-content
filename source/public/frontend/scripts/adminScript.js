@@ -362,6 +362,7 @@ async function loadDashboardData() {
     ]);
   } finally {
     updateStatCards();
+    updateInsights();
     setDashboardLoading(false);
   }
 }
@@ -409,6 +410,114 @@ function updateStatCards() {
 
   const totalPending = pendingResources.length + pendingCourses.length;
   if (pendingBadge) pendingBadge.textContent = totalPending;
+}
+
+// Update key statistics insights
+function updateInsights() {
+  renderTopDownloads();
+  renderResourcesByType();
+  renderTopCourses();
+}
+
+function renderTopDownloads() {
+  const list = document.getElementById('top-downloads-list');
+  if (!list) return;
+
+  const top5 = [...allResources]
+    .sort((a, b) => (Number(b.downloads) || 0) - (Number(a.downloads) || 0))
+    .slice(0, 5);
+
+  if (top5.length === 0) {
+    list.innerHTML = '<li class="insight-list-empty">No resources yet</li>';
+    return;
+  }
+
+  list.innerHTML = top5.map(resource => {
+    const course = allCourses.find(c => c.courseCode === resource.courseCode);
+    const courseName = course ? course.courseName : resource.courseCode;
+    return `
+      <li class="insight-list-item">
+        <div class="insight-item-info">
+          <span class="insight-item-title">${resource.title}</span>
+          <span class="insight-item-sub">${resource.courseCode} &mdash; ${courseName}</span>
+        </div>
+        <span class="insight-item-badge">${Number(resource.downloads) || 0}</span>
+      </li>`;
+  }).join('');
+}
+
+function renderResourcesByType() {
+  const list = document.getElementById('resources-by-type-list');
+  if (!list) return;
+
+  const typeLabels = {
+    'exam': 'Exam',
+    'lecture-notes': 'Lecture Notes',
+    'assignment': 'Assignment',
+    'solution': 'Solution',
+    'other': 'Other'
+  };
+
+  const counts = {};
+  allResources.forEach(r => {
+    const key = r.type || 'other';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  const total = allResources.length;
+
+  if (total === 0) {
+    list.innerHTML = '<li class="insight-list-empty">No resources yet</li>';
+    return;
+  }
+
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+  list.innerHTML = sorted.map(([type, count]) => {
+    const pct = Math.round((count / total) * 100);
+    return `
+      <li class="insight-type-item">
+        <div class="insight-type-header">
+          <span class="insight-type-label">${typeLabels[type] || type}</span>
+          <span class="insight-type-count">${count} (${pct}%)</span>
+        </div>
+        <div class="insight-type-bar-track">
+          <div class="insight-type-bar-fill" style="width: ${pct}%"></div>
+        </div>
+      </li>`;
+  }).join('');
+}
+
+function renderTopCourses() {
+  const list = document.getElementById('top-courses-list');
+  if (!list) return;
+
+  const countMap = {};
+  allResources.forEach(r => {
+    countMap[r.courseCode] = (countMap[r.courseCode] || 0) + 1;
+  });
+
+  const top5 = Object.entries(countMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  if (top5.length === 0) {
+    list.innerHTML = '<li class="insight-list-empty">No resources yet</li>';
+    return;
+  }
+
+  list.innerHTML = top5.map(([code, count]) => {
+    const course = allCourses.find(c => c.courseCode === code);
+    const name = course ? course.courseName : code;
+    return `
+      <li class="insight-list-item">
+        <div class="insight-item-info">
+          <span class="insight-item-title">${code}</span>
+          <span class="insight-item-sub">${name}</span>
+        </div>
+        <span class="insight-item-badge">${count} resource${count !== 1 ? 's' : ''}</span>
+      </li>`;
+  }).join('');
 }
 
 // Load courses

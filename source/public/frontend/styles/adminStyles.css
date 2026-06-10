@@ -1403,3 +1403,182 @@ body {
         padding: 1rem;
     }
 }
+
+/* =========================================================
+   Key Statistics / Insights Section
+   ========================================================= */
+
+.dashboard-insights {
+    margin-top: 2rem;
+}
+
+.dashboard-insights h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.insight-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--shadow);
+    overflow: hidden;
+}
+
+.insight-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, var(--primary-maroon) 0%, var(--primary-dark) 100%);
+}
+
+.insight-header svg {
+    width: 18px;
+    height: 18px;
+    stroke: rgba(255,255,255,0.85);
+    flex-shrink: 0;
+}
+
+.insight-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--white);
+    margin: 0;
+}
+
+/* Numbered list for top-N */
+.insight-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    counter-reset: insight-counter;
+}
+
+.insight-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    counter-increment: insight-counter;
+}
+
+.insight-list-item:last-child {
+    border-bottom: none;
+}
+
+.insight-list-item::before {
+    content: counter(insight-counter);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--white);
+    background: var(--primary-maroon);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.insight-list-empty {
+    padding: 1.5rem 1.25rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.insight-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.insight-item-title {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.insight-item-sub {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+}
+
+.insight-item-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-maroon);
+    background: rgba(139, 21, 56, 0.08);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Type breakdown list */
+.insight-type-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+}
+
+.insight-type-item {
+    margin-bottom: 0.85rem;
+}
+
+.insight-type-item:last-child {
+    margin-bottom: 0;
+}
+
+.insight-type-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3rem;
+}
+
+.insight-type-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.insight-type-count {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.insight-type-bar-track {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.insight-type-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-maroon), var(--accent-gold));
+    border-radius: 999px;
+    transition: width 0.5s ease;
+}

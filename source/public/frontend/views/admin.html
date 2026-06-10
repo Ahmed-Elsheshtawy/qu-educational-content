@@ -184,6 +184,58 @@
                     </button>
                 </div>
             </div>
+
+            <div class="dashboard-insights">
+                <h2>Key Statistics</h2>
+                <div class="insights-grid">
+
+                    <!-- Top 5 Most Downloaded Resources -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <h3>Top 5 Most Downloaded</h3>
+                        </div>
+                        <ol class="insight-list" id="top-downloads-list">
+                            <li class="insight-list-empty">Loading...</li>
+                        </ol>
+                    </div>
+
+                    <!-- Resources by Type -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                            <h3>Resources by Type</h3>
+                        </div>
+                        <ul class="insight-type-list" id="resources-by-type-list">
+                            <li class="insight-list-empty">Loading...</li>
+                        </ul>
+                    </div>
+
+                    <!-- Top 5 Courses by Resource Count -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            <h3>Top 5 Courses by Resources</h3>
+                        </div>
+                        <ol class="insight-list" id="top-courses-list">
+                            <li class="insight-list-empty">Loading...</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
         </section>
 
         <!-- Courses Management Tab -->
