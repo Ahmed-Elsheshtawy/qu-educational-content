@@ -54,12 +54,6 @@ async function handleLogin(e) {
 function showError(message) {
     errorMessage.textContent = message;
     errorMessage.style.display = 'block';
-    
-    // Shake animation
-    errorMessage.style.animation = 'none';
-    setTimeout(() => {
-        errorMessage.style.animation = 'shake 0.5s ease';
-    }, 10);
 }
 
 // Clear error message
