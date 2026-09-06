@@ -1100,13 +1100,23 @@ body {
     color: #9a9a9a;
 }
 
-/* Once AdSense reports a filled ad, reveal the slot's spacing + label */
+.ad-slot__disclaimer {
+    display: none;
+    max-width: 640px;
+    margin: 0.5rem auto 0;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: #9a9a9a;
+}
+
+/* Once AdSense reports a filled ad, reveal the slot's spacing, label + disclaimer */
 .ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) {
     min-height: 100px;
     margin: 2.5rem auto;
 }
 
-.ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) .ad-slot__label {
+.ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) .ad-slot__label,
+.ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) .ad-slot__disclaimer {
     display: block;
 }
 
