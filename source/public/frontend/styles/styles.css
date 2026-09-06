@@ -1069,3 +1069,56 @@ body {
         padding: 0.875rem 1.25rem;
     }
 }
+
+/* ============================================
+   Ad Slots (Google AdSense)
+   ============================================ */
+
+/* The wrapper is always in the DOM and never display:none, so AdSense can
+   measure the <ins> and decide whether to fill it. Everything *visible*
+   (spacing, label, box) is gated behind a filled ad, so nothing shows while
+   the account is pending review or when a slot goes unfilled. */
+.ad-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    overflow: hidden;
+}
+
+.ad-slot .adsbygoogle {
+    display: block;
+    width: 100%;
+}
+
+.ad-slot__label {
+    display: none;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #9a9a9a;
+}
+
+/* Once AdSense reports a filled ad, reveal the slot's spacing + label */
+.ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) {
+    min-height: 100px;
+    margin: 2.5rem auto;
+}
+
+.ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) .ad-slot__label {
+    display: block;
+}
+
+/* Boxed variant — border/background only appear with a filled ad */
+.ad-slot--boxed:has(ins.adsbygoogle[data-ad-status="filled"]) {
+    background: var(--background-white);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+@media (max-width: 480px) {
+    .ad-slot:has(ins.adsbygoogle[data-ad-status="filled"]) {
+        margin: 1.75rem auto;
+    }
+}

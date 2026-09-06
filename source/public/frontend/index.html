@@ -23,12 +23,17 @@
     
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/submitStyles.css">
+
+    <!-- Google AdSense (publisher ca-pub-2726830784121532) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2726830784121532" crossorigin="anonymous"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script type="module" src="scripts/navScript.js" defer></script>
     <script type="module" src="scripts/router.js" defer></script>
     <script type="module" src="scripts/indexScript.js" defer></script>
     <script type="module" src="scripts/submitScript.js" defer></script>
     <script type="module" src="scripts/courseSubmitScript.js" defer></script>
+    <script src="scripts/adsScript.js" defer></script>
 </head>
 <body>
     <!-- Header -->
@@ -90,6 +95,20 @@
             </div>
         </section>
 
+        <!-- Ad: top of content, between hero and course list -->
+        <div class="container">
+            <div class="ad-slot">
+                <span class="ad-slot__label">Advertisement</span>
+                <!-- Home – Top. TODO: swap data-ad-slot for a real unit ID from AdSense › Ads › By ad unit. -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-2726830784121532"
+                     data-ad-slot="1111111111"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </div>
+
         <!-- Courses Section -->
         <section class="courses-section">
             <div class="container">
@@ -101,6 +120,18 @@
                     <button id="prev-page" class="pagination-btn" disabled>Previous</button>
                     <span id="page-info" class="page-info">Page 1 of 1</span>
                     <button id="next-page" class="pagination-btn" disabled>Next</button>
+                </div>
+
+                <!-- Ad: bottom of content, after the course list -->
+                <div class="ad-slot ad-slot--boxed">
+                    <span class="ad-slot__label">Advertisement</span>
+                    <!-- Home – Bottom. TODO: swap data-ad-slot for a real unit ID from AdSense › Ads › By ad unit. -->
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-2726830784121532"
+                         data-ad-slot="2222222222"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
                 </div>
             </div>
         </section>
